@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using LibGit2Sharp;
 using Mono.Cecil;
 
@@ -21,6 +19,11 @@ public class ModuleWeaver
 
     public void Execute()
     {
+        var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
+        if (customAttributes.Any(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute"))
+        {
+            throw new WeavingException("Already contains AssemblyInformationalVersionAttribute.");
+        }
         var gitDir = TreeWalkForGitDir(SolutionDirectoryPath);
         if (gitDir == null)
         {
@@ -32,14 +35,18 @@ public class ModuleWeaver
         var customAttribute = new CustomAttribute(constructor);
         using (var repo = new Repository(gitDir))
         {
-            customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, repo.Head.Tip.Sha));
+            var sha = repo.Head.Tip.Sha;
+            var version = ModuleDefinition.Assembly.Name.Version +"/"+ sha;
+            customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
         }
-        ModuleDefinition.Assembly.CustomAttributes.Add(customAttribute);
+        customAttributes.Add(customAttribute);
     }
 
     public TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
+       // AssemblyFileVersionAttribute
+        // AssemblyInformationalVersionAttribute
         return msCoreLib.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 

@@ -6,9 +6,10 @@ using NUnit.Framework;
 public class GitTests
 {
     [Test]
+    [Ignore]
     public void Foo()
     {
-        using (var repo = new Repository(@"C:\Users\Simon\Code\GitHub\NotifyPropertyWeaver\.git"))
+        using (var repo = new Repository(@".git"))
         {  
             Debug.WriteLine(repo.Head.Tip.Sha);
         }

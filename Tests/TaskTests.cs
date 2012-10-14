@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -22,6 +23,7 @@ public class TaskTests
     [Test]
     public void EnsureAttributeExists()
     {
+
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).First();
         Debug.WriteLine(customAttributes.InformationalVersion);
     }

@@ -30,7 +30,6 @@ public class WeaverHelper
 
         weavingTask.Execute();
         moduleDefinition.Write(newAssembly);
-
         Assembly = Assembly.LoadFile(newAssembly);
     }
 
