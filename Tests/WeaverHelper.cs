@@ -25,6 +25,7 @@ public class WeaverHelper
         var weavingTask = new ModuleWeaver
         {
             ModuleDefinition = moduleDefinition,
+            AddinDirectoryPath = typeof(ModuleWeaver).Assembly.CodeBase.Remove(0, 8),
             SolutionDirectoryPath = Environment.CurrentDirectory
         };
 

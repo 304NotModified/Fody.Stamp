@@ -27,6 +27,10 @@
   <UsingTask TaskName="PepitaPackage.WeavingTask" AssemblyFile="$(SolutionDir)Tools\Pepita\PepitaPackage.dll" />
   <Target Name="NuGetBuild" DependsOnTargets="Clean"> 
     <MakeDir Directories="$(SolutionDir)NuGetBuild" />
+    <Copy SourceFiles="$(SolutionDir)Fody\bin\$(ConfigurationName)\NativeBinaries\amd64\git2.dll" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
+    <Copy SourceFiles="$(SolutionDir)Fody\bin\$(ConfigurationName)\NativeBinaries\x86\git2.dll" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
+    <Copy SourceFiles="$(SolutionDir)Fody\bin\$(ConfigurationName)\LibGit2Sharp.dll" DestinationFolder="$(SolutionDir)NuGetBuild" />
+	
 	<Copy SourceFiles="$(SolutionDir)NuGet\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
     <Copy SourceFiles="$(ProjectDir)install.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
     <Copy SourceFiles="$(ProjectDir)uninstall.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
