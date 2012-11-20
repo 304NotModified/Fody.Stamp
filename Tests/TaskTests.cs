@@ -22,8 +22,8 @@ public class TaskTests
     [Test]
     public void EnsureAttributeExists()
     {
-
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).First();
+        Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
     }
 

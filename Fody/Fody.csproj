@@ -65,8 +65,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CecilExtensions.cs" />
+    <Compile Include="EnumerableEx.cs" />
     <Compile Include="GitDirFinder.cs" />
+    <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
     <Compile Include="WeavingException.cs" />

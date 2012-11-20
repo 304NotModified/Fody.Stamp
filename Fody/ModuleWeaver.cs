@@ -38,14 +38,25 @@ public class ModuleWeaver
         var customAttribute = new CustomAttribute(constructor);
         using (var repo = new Repository(gitDir))
         {
-            var sha = repo.Head.Tip.Sha;
-            var version = ModuleDefinition.Assembly.Name.Version +"/"+ sha;
-            customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
+	        var version = GetVersion(repo);
+	        customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
         }
-        customAttributes.Add(customAttribute);
+	    customAttributes.Add(customAttribute);
     }
 
-    void SetSearchPath()
+	string GetVersion(Repository repo)
+	{
+		var branch = repo.Head;
+		var sha = branch.Tip.Sha;
+		var assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+		if (repo.IsClean())
+		{
+			return string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, sha);
+		}
+		return string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, sha);
+	}
+
+	void SetSearchPath()
     {
         if (isPathSet)
         {
