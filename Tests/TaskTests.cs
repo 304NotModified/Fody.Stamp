@@ -23,9 +23,12 @@ public class TaskTests
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
-        var weavingTask = new ModuleWeaver
+	    var currentDirectory = AssemblyLocation.CurrentDirectory();
+	    var weavingTask = new ModuleWeaver
         {
             ModuleDefinition = moduleDefinition,
+			AddinDirectoryPath = currentDirectory,
+			SolutionDirectoryPath = currentDirectory
         };
 
         weavingTask.Execute();

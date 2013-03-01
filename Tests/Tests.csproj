@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyLocation.cs" />
     <Compile Include="GitTests.cs" />
     <Compile Include="Verifier.cs" />
     <Compile Include="TaskTests.cs" />

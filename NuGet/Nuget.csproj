@@ -20,8 +20,10 @@
     <Content Include="Fody_ToBeDeleted.txt" />
   </ItemGroup>
   <Target Name="Clean">
-    <RemoveDir Directories="$(SolutionDir)NuGetBuild" />
-	<MakeDir Directories="$(SolutionDir)NuGetBuild" />
+	<ItemGroup>
+		<FilesToDelete Include="$(SolutionDir)NuGetBuild\**"/>
+	</ItemGroup>
+	<RemoveDir Directories="@(FilesToDelete)" />
   </Target>
   <Target Name="Build" DependsOnTargets="NuGetBuild" />
   <Target Name="ReBuild" DependsOnTargets="NuGetBuild" />
