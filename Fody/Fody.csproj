@@ -77,6 +77,9 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(ProjectPath)\..\..\Tools\Pepita\PepitaGet.targets" />
   <PropertyGroup>
@@ -87,4 +90,5 @@ xcopy /s /y "$(SolutionDir)packages\LibGit2Sharp.0.9.5\NativeBinaries\x86\*.*" "
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
 xcopy /s /y "$(SolutionDir)packages\LibGit2Sharp.0.9.5\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Fody.1.13.0.0\Fody.targets" Condition="Exists('..\packages\Fody.1.13.0.0\Fody.targets')" />
 </Project>
