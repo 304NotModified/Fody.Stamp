@@ -8,7 +8,7 @@
     <owners>Simon Cropp</owners>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>http://github.com/Fody/Stamp</projectUrl>
-    <iconUrl>https://raw.github.com/Fody/Stamp/master/Icons/icon_100x100.png</iconUrl>
+    <iconUrl>https://raw.github.com/Fody/Stamp/master/Icons/package_icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Stamps an assembly with git information.</description>
     <language>en-AU</language>
