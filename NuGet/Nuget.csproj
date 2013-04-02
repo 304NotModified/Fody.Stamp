@@ -20,10 +20,10 @@
     <Content Include="Fody_ToBeDeleted.txt" />
   </ItemGroup>
   <Target Name="Clean">
-	<ItemGroup>
-		<FilesToDelete Include="$(SolutionDir)NuGetBuild\**"/>
-	</ItemGroup>
-	<RemoveDir Directories="@(FilesToDelete)" />
+    <ItemGroup>
+      <FilesToDelete Include="$(SolutionDir)NuGetBuild\**\*.*" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
   </Target>
   <Target Name="Build" DependsOnTargets="NuGetBuild" />
   <Target Name="ReBuild" DependsOnTargets="NuGetBuild" />
@@ -31,15 +31,9 @@
   <Target Name="NuGetBuild" DependsOnTargets="Clean"> 
   
   <MakeDir Directories="$(SolutionDir)NuGetBuild" />
-    
-  
     <Exec Command='"$(SolutionDir)Tools\ilmerge.exe" /out:"$(SolutionDir)NuGetBuild\Stamp.Fody.dll" "$(SolutionDir)Fody\bin\$(ConfigurationName)\Stamp.Fody.dll" "$(SolutionDir)Fody\bin\$(ConfigurationName)\LibGit2Sharp.dll"  /target:library /targetplatform:v4' />
-  
     <Copy SourceFiles="$(SolutionDir)Fody\bin\$(ConfigurationName)\NativeBinaries\amd64\git2.dll" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
     <Copy SourceFiles="$(SolutionDir)Fody\bin\$(ConfigurationName)\NativeBinaries\x86\git2.dll" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
-	
-	
-	
 	<Copy SourceFiles="$(SolutionDir)NuGet\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
     <Copy SourceFiles="$(ProjectDir)install.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
     <Copy SourceFiles="$(ProjectDir)uninstall.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
