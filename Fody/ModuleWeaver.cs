@@ -86,7 +86,13 @@ public class ModuleWeaver
     TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
-        return msCoreLib.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
+        var mscoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
+        if (mscoreAttribute != null)
+        {
+            return mscoreAttribute;
+        }
+        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
+        return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 
   
