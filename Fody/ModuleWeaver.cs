@@ -36,7 +36,8 @@ public class ModuleWeaver
         var versionAttribute = GetVersionAttribute();
         var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
         var customAttribute = new CustomAttribute(constructor);
-        using (var repo = new Repository(gitDir))
+        
+        using (var repo = GetRepo(gitDir))
         {
             var branch = repo.Head;
             if (branch.Tip == null)
@@ -60,8 +61,24 @@ public class ModuleWeaver
 	    customAttributes.Add(customAttribute);
     }
 
+    static Repository GetRepo(string gitDir)
+    {
+        try
+        {
+            return new Repository(gitDir);
+        }
+        catch (Exception exception)
+        {
+            if (exception.Message.Contains("'LibGit2Sharp.Core.NativeMethods'"))
+            {
+                throw new WeavingException("Restart of Visual Studio required due to update of 'Stamp.Fody'.");
+            }
+            throw;
+        }
+    }
 
-	void SetSearchPath()
+
+    void SetSearchPath()
     {
         if (isPathSet)
         {
