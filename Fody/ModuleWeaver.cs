@@ -69,7 +69,7 @@ public class ModuleWeaver
         }
         catch (Exception exception)
         {
-            if (exception.Message.Contains("'LibGit2Sharp.Core.NativeMethods'"))
+            if (exception.Message.Contains("LibGit2Sharp.Core.NativeMethods") || exception.Message.Contains("FilePathMarshaler"))
             {
                 throw new WeavingException("Restart of Visual Studio required due to update of 'Stamp.Fody'.");
             }
