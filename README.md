@@ -1,3 +1,5 @@
+![Icon](https://raw.github.com/Fody/Stamp/master/Icons/package_icon.png)
+
 ## This is an add-in for [Fody](https://github.com/Fody/Fody/) 
 
 Stamps an assembly with git data.
