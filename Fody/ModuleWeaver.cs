@@ -12,7 +12,7 @@ public class ModuleWeaver
     public string SolutionDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     static bool isPathSet;
-  
+
     public ModuleWeaver()
     {
         LogInfo = s => { };
@@ -23,20 +23,14 @@ public class ModuleWeaver
     {
         SetSearchPath();
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
-        if (customAttributes.Any(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute"))
-        {
-            throw new WeavingException("Already contains AssemblyInformationalVersionAttribute.");
-        }
+
         var gitDir = GitDirFinder.TreeWalkForGitDir(SolutionDirectoryPath);
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
             return;
         }
-        var versionAttribute = GetVersionAttribute();
-        var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
-        var customAttribute = new CustomAttribute(constructor);
-        
+
         using (var repo = GetRepo(gitDir))
         {
             var branch = repo.Head;
@@ -44,21 +38,52 @@ public class ModuleWeaver
             {
                 LogWarning("No Tip found. Has repo been initialize?");
                 return;
-                
             }
             var assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+
+            CustomAttribute customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             string version;
-            if (repo.IsClean())
+            if (customAttribute != null)
             {
-                version = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                version = (string)customAttribute.ConstructorArguments[0].Value;
+                version = ReplaceTokens(version, assemblyVersion, repo, branch);
+
+                customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version);
             }
             else
             {
-                version = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                var versionAttribute = GetVersionAttribute();
+                var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
+                customAttribute = new CustomAttribute(constructor);
+                if (repo.IsClean())
+                {
+                    version = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                }
+                else
+                {
+                    version = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                }
+                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
+                customAttributes.Add(customAttribute);
             }
-	        customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
         }
-	    customAttributes.Add(customAttribute);
+    }
+
+    string ReplaceTokens(string template, Version assemblyVersion, Repository repo, Branch branch)
+    {
+        template = template.Replace("%version%", assemblyVersion.ToString());
+        template = template.Replace("%version1%", assemblyVersion.ToString(1));
+        template = template.Replace("%version2%", assemblyVersion.ToString(2));
+        template = template.Replace("%version3%", assemblyVersion.ToString(3));
+        template = template.Replace("%version4%", assemblyVersion.ToString(4));
+
+        template = template.Replace("%githash%", branch.Tip.Sha);
+        
+        template = template.Replace("%branch%", repo.Head.Name);
+        
+        template = template.Replace("%haschanges%", repo.IsClean() ? "" : "HasChanges");
+
+        return template.Trim();
     }
 
     static Repository GetRepo(string gitDir)
@@ -76,7 +101,6 @@ public class ModuleWeaver
             throw;
         }
     }
-
 
     void SetSearchPath()
     {
@@ -111,6 +135,4 @@ public class ModuleWeaver
         var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
-
-  
 }
