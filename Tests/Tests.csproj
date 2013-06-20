@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyLocation.cs" />
+    <Compile Include="ExistingTests.cs" />
     <Compile Include="GitTests.cs" />
     <Compile Include="Verifier.cs" />
     <Compile Include="TaskTests.cs" />
@@ -76,6 +77,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj">
+      <Project>{1f67c3cf-6705-4a98-b9a4-c448dca95bc2}</Project>
+      <Name>AssemblyToProcessExistingAttribute</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj">
       <Project>{7dec4e2d-f872-434e-a267-0bad65299950}</Project>
       <Name>AssemblyToProcess</Name>
