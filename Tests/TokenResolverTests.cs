@@ -86,4 +86,50 @@ public class TokenResolverTests
                 Assert.AreEqual("1.0.0.0", result);
             });
     }
+
+    [Test]
+    public void Replace_branch()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var branchName = repo.Head.Name;
+
+                var result = _resolver.ReplaceTokens("%branch%", _moduleDefinition, repo);
+
+                Assert.AreEqual(branchName, result);
+            });
+    }
+
+    [Test]
+    public void Replace_githash()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var sha = repo.Head.Tip.Sha;
+
+                var result = _resolver.ReplaceTokens("%githash%", _moduleDefinition, repo);
+
+                Assert.AreEqual(sha, result);
+            });
+    }
+
+    [Test]
+    public void Replace_haschanges()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var isDirty = repo.Index.Count > 0;
+
+                var result = _resolver.ReplaceTokens("%haschanges%", _moduleDefinition, repo);
+
+                if (isDirty)
+                {
+                    Assert.AreEqual("HasChanges", result);
+                }
+                else
+                {
+                    Assert.AreEqual(string.Empty, result);
+                }
+            });
+    }
 }
