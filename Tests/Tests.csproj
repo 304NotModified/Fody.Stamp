@@ -68,6 +68,7 @@
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="ExistingTests.cs" />
     <Compile Include="GitTests.cs" />
+    <Compile Include="TokenResolverTests.cs" />
     <Compile Include="Verifier.cs" />
     <Compile Include="TaskTests.cs" />
   </ItemGroup>

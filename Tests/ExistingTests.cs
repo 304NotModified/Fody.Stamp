@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
 
@@ -50,8 +52,13 @@ public class ExistingTests
     [Test]
     public void TemplateIsReplaced()
     {
-        var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
-        Assert.True(customAttributes.InformationalVersion.StartsWith("1.0.0+master."));
+        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        {
+            var nameOfCurrentBranch = repo.Head.Name;
+            
+            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
+            Assert.True(customAttributes.InformationalVersion.StartsWith("1.0.0+"+nameOfCurrentBranch+"."));
+        }
     }
 
 
