@@ -9,7 +9,6 @@ using NUnit.Framework;
 [TestFixture]
 public class TokenResolverTests
 {
-    private Repository _repo;
     private ModuleDefinition _moduleDefinition;
     private FormatStringTokenResolver _resolver;
 
@@ -20,50 +19,71 @@ public class TokenResolverTests
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
-
-        _repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory));
         _moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
 
         _resolver = new FormatStringTokenResolver();
     }
 
+    private void DoWithCurrentRepo(Action<Repository> doWithRepo)
+    {
+        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        {
+            if (doWithRepo != null) doWithRepo(repo);
+        }
+    }
+
     [Test]
     public void Replace_version()
     {
-        var result = _resolver.ReplaceTokens("%version%", _moduleDefinition, _repo);
+        DoWithCurrentRepo(repo =>
+            {
+                var result = _resolver.ReplaceTokens("%version%", _moduleDefinition, repo);
 
-        Assert.AreEqual("1.0.0.0", result);
+                Assert.AreEqual("1.0.0.0", result);
+            });
     }
 
     [Test]
     public void Replace_version1()
     {
-        var result = _resolver.ReplaceTokens("%version1%", _moduleDefinition, _repo);
+        DoWithCurrentRepo(repo =>
+            {
+                var result = _resolver.ReplaceTokens("%version1%", _moduleDefinition, repo);
 
-        Assert.AreEqual("1", result);
+                Assert.AreEqual("1", result);
+            });
     }
 
     [Test]
     public void Replace_version2()
     {
-        var result = _resolver.ReplaceTokens("%version2%", _moduleDefinition, _repo);
+        DoWithCurrentRepo(repo =>
+            {
+                var result = _resolver.ReplaceTokens("%version2%", _moduleDefinition, repo);
 
-        Assert.AreEqual("1.0", result);
+                Assert.AreEqual("1.0", result);
+            });
     }
 
     [Test]
     public void Replace_version3()
     {
-        var result = _resolver.ReplaceTokens("%version3%", _moduleDefinition, _repo);
+        DoWithCurrentRepo(repo =>
+            {
+                var result = _resolver.ReplaceTokens("%version3%", _moduleDefinition, repo);
 
-        Assert.AreEqual("1.0.0", result);
+                Assert.AreEqual("1.0.0", result);
+            });
     }
 
     [Test]
     public void Replace_version4()
     {
-        var result = _resolver.ReplaceTokens("%version4%", _moduleDefinition, _repo);
+        DoWithCurrentRepo(repo =>
+            {
+                var result = _resolver.ReplaceTokens("%version4%", _moduleDefinition, repo);
 
-        Assert.AreEqual("1.0.0.0", result);
+                Assert.AreEqual("1.0.0.0", result);
+            });
     }
 }
