@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -130,6 +132,56 @@ public class TokenResolverTests
                 {
                     Assert.AreEqual(string.Empty, result);
                 }
+            });
+    }
+
+    [Test]
+    public void Replace_user()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var currentUser = Environment.UserName;
+
+                var result = _resolver.ReplaceTokens("%user%", _moduleDefinition, repo);
+
+                Assert.IsTrue(result.EndsWith(currentUser));
+            });
+    }
+
+    [Test]
+    public void Replace_machine()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var machineName = Environment.MachineName;
+
+                var result = _resolver.ReplaceTokens("%machine%", _moduleDefinition, repo);
+
+                Assert.AreEqual(machineName, result);
+            });
+    }
+
+    [Test]
+    public void Replace_environment_variables()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+                var expected = string.Join("--", environmentVariables.Values.Cast<string>());
+
+                var replacementTokens = string.Join("--", environmentVariables.Keys.Cast<string>()
+                                                                              .Select(key => "%env[" + key + "]%")
+                                                                              .ToArray());
+#if xDEBUG
+                Debug.WriteLine("environment variables:");
+                foreach (DictionaryEntry de in environmentVariables)
+                {
+                    Debug.WriteLine("- {0}: {1}", de.Key, de.Value);
+                }
+#endif
+                var result = _resolver.ReplaceTokens(replacementTokens, _moduleDefinition, repo);
+
+                Assert.AreEqual(expected, result);
             });
     }
 }

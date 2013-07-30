@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Mono.Cecil;
 
 public class FormatStringTokenResolver
 {
+    static Regex reEnvironmentToken = new Regex(@"%env\[([^\]]+)]%");
+
     public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo)
     {
         var assemblyVersion = moduleDefinition.Assembly.Name.Version;
@@ -21,6 +24,23 @@ public class FormatStringTokenResolver
         
         template = template.Replace("%haschanges%", repo.IsClean() ? "" : "HasChanges");
 
+        template = template.Replace("%user%", FormatUserName());
+        template = template.Replace("%machine%", Environment.MachineName);
+
+        template = reEnvironmentToken.Replace(template, FormatEnvironmentVariable);
+
         return template.Trim();
+    }
+
+    private string FormatUserName()
+    {
+        return string.IsNullOrWhiteSpace(Environment.UserDomainName)
+                   ? Environment.UserName
+                   : string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
+    }
+
+    private string FormatEnvironmentVariable(Match match)
+    {
+        return Environment.GetEnvironmentVariable(match.Groups[1].Value);
     }
 }
