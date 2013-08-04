@@ -12,11 +12,13 @@ public class ModuleWeaver
     public string SolutionDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     static bool isPathSet;
+    private readonly FormatStringTokenResolver formatStringTokenResolver;
 
     public ModuleWeaver()
     {
         LogInfo = s => { };
         LogWarning = s => { };
+        formatStringTokenResolver = new FormatStringTokenResolver();
     }
 
     public void Execute()
@@ -46,7 +48,7 @@ public class ModuleWeaver
             if (customAttribute != null)
             {
                 version = (string)customAttribute.ConstructorArguments[0].Value;
-                version = ReplaceTokens(version, assemblyVersion, repo, branch);
+                version = formatStringTokenResolver.ReplaceTokens(version, ModuleDefinition, repo);
 
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version);
             }
@@ -67,23 +69,6 @@ public class ModuleWeaver
                 customAttributes.Add(customAttribute);
             }
         }
-    }
-
-    string ReplaceTokens(string template, Version assemblyVersion, Repository repo, Branch branch)
-    {
-        template = template.Replace("%version%", assemblyVersion.ToString());
-        template = template.Replace("%version1%", assemblyVersion.ToString(1));
-        template = template.Replace("%version2%", assemblyVersion.ToString(2));
-        template = template.Replace("%version3%", assemblyVersion.ToString(3));
-        template = template.Replace("%version4%", assemblyVersion.ToString(4));
-
-        template = template.Replace("%githash%", branch.Tip.Sha);
-        
-        template = template.Replace("%branch%", repo.Head.Name);
-        
-        template = template.Replace("%haschanges%", repo.IsClean() ? "" : "HasChanges");
-
-        return template.Trim();
     }
 
     static Repository GetRepo(string gitDir)
