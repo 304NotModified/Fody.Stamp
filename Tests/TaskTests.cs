@@ -24,15 +24,17 @@ public class TaskTests
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
 	    var currentDirectory = AssemblyLocation.CurrentDirectory();
-	    var weavingTask = new ModuleWeaver
+        using (var weavingTask = new ModuleWeaver
+                                 {
+                                     ModuleDefinition = moduleDefinition,
+                                     AddinDirectoryPath = currentDirectory,
+                                     SolutionDirectoryPath = currentDirectory,
+                                 AssemblyFilePath = afterAssemblyPath,
+                                 })
         {
-            ModuleDefinition = moduleDefinition,
-			AddinDirectoryPath = currentDirectory,
-			SolutionDirectoryPath = currentDirectory
-        };
-
-        weavingTask.Execute();
+            weavingTask.Execute();
         moduleDefinition.Write(afterAssemblyPath);
+        }
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
@@ -44,6 +46,14 @@ public class TaskTests
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).First();
         Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
+    }
+
+    [Test]
+    public void Win32Resource()
+    {
+        var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
+        Assert.IsNotNullOrEmpty(productVersion);
+        Debug.WriteLine(productVersion);
     }
 
 

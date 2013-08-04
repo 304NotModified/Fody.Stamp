@@ -37,6 +37,7 @@
         <Output TaskParameter="Include" ItemName="amd64"/>
     </CreateItem>    
     <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
+    <Copy SourceFiles="$(SolutionDir)Lib\Verpatch\verpatch.exe" DestinationFolder="$(SolutionDir)NuGetBuild\" />
     
     <CreateItem Include="$(SolutionDir)Fody\bin\$(ConfigurationName)\NativeBinaries\x86\*.dll">
         <Output TaskParameter="Include" ItemName="x86"/>

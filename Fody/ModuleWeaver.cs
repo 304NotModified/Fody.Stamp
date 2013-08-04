@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
 
-public class ModuleWeaver
+public class ModuleWeaver : IDisposable
 {
     public Action<string> LogInfo { get; set; }
     public Action<string> LogWarning { get; set; }
     public ModuleDefinition ModuleDefinition { get; set; }
     public string SolutionDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
+    public string AssemblyFilePath { get; set; }
     static bool isPathSet;
-    private readonly FormatStringTokenResolver formatStringTokenResolver;
+    readonly FormatStringTokenResolver formatStringTokenResolver;
+    string version;
 
     public ModuleWeaver()
     {
@@ -44,12 +47,11 @@ public class ModuleWeaver
             var assemblyVersion = ModuleDefinition.Assembly.Name.Version;
 
             var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
-            string version;
             if (customAttribute != null)
             {
-                version = (string)customAttribute.ConstructorArguments[0].Value;
+                version = (string) customAttribute.ConstructorArguments[0].Value;
                 version = formatStringTokenResolver.ReplaceTokens(version, ModuleDefinition, repo);
-
+                VerifyStartsWithVersion(version);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version);
             }
             else
@@ -68,6 +70,16 @@ public class ModuleWeaver
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
                 customAttributes.Add(customAttribute);
             }
+        }
+    }
+
+    void VerifyStartsWithVersion(string versionString)
+    {
+        var prefix = new string(versionString.TakeWhile(x => char.IsDigit(x) || x == '.').ToArray());
+        Version fake;
+        if (!Version.TryParse(prefix, out fake))
+        {
+            throw new WeavingException("The version string must be prefixed with a valid Version. The following string does not: " + versionString);
         }
     }
 
@@ -119,5 +131,36 @@ public class ModuleWeaver
         }
         var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
+    }
+
+    public void Dispose()
+    {
+        var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
+        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = verPatchPath,
+                            Arguments = string.Format("{0} /pv \"{1}\" /high /va", AssemblyFilePath, version),
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            WorkingDirectory = Path.GetTempPath()
+                        };
+        using (var process = Process.Start(startInfo))
+        {
+            process.WaitForExit(200);
+
+            if (process.ExitCode == 0)
+            {
+                return;
+            }
+            var output = process.StandardOutput.ReadToEnd();
+            var error = process.StandardError.ReadToEnd();
+            var message = string.Format(
+@"Failed to apply product version to Win32 resources.
+Output: {0}
+Error: {1}", output, error);
+            throw new WeavingException(message);
+        }
     }
 }

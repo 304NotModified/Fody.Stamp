@@ -26,15 +26,17 @@ public class ExistingTests
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
 	    var currentDirectory = AssemblyLocation.CurrentDirectory();
-	    var weavingTask = new ModuleWeaver
+        using (var moduleWeaver = new ModuleWeaver
+                                  {
+                                      ModuleDefinition = moduleDefinition,
+                                      AddinDirectoryPath = currentDirectory,
+                                      SolutionDirectoryPath = currentDirectory,
+                                      AssemblyFilePath = afterAssemblyPath,
+                                  })
         {
-            ModuleDefinition = moduleDefinition,
-			AddinDirectoryPath = currentDirectory,
-			SolutionDirectoryPath = currentDirectory
-        };
-
-        weavingTask.Execute();
-        moduleDefinition.Write(afterAssemblyPath);
+            moduleWeaver.Execute();
+            moduleDefinition.Write(afterAssemblyPath);
+        }
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
@@ -47,6 +49,17 @@ public class ExistingTests
         Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
     }
+    [Test]
+    public void Win32Resource()
+    {
+        var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
+
+        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        {
+            var nameOfCurrentBranch = repo.Head.Name;
+            Assert.True(productVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
+        }
+    }
 
 
     [Test]
@@ -56,7 +69,8 @@ public class ExistingTests
         {
             var nameOfCurrentBranch = repo.Head.Name;
             
-            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
+            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+                .First();
             Assert.True(customAttributes.InformationalVersion.StartsWith("1.0.0+"+nameOfCurrentBranch+"."));
         }
     }
