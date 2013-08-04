@@ -3,7 +3,6 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
@@ -166,13 +165,13 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+                var environmentVariables = Environment.GetEnvironmentVariables();
                 var expected = string.Join("--", environmentVariables.Values.Cast<string>());
 
                 var replacementTokens = string.Join("--", environmentVariables.Keys.Cast<string>()
                                                                               .Select(key => "%env[" + key + "]%")
                                                                               .ToArray());
-#if xDEBUG
+#if DEBUG
                 Debug.WriteLine("environment variables:");
                 foreach (DictionaryEntry de in environmentVariables)
                 {

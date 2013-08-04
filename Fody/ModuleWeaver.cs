@@ -43,7 +43,7 @@ public class ModuleWeaver
             }
             var assemblyVersion = ModuleDefinition.Assembly.Name.Version;
 
-            CustomAttribute customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
+            var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             string version;
             if (customAttribute != null)
             {
@@ -94,9 +94,9 @@ public class ModuleWeaver
             return;
         }
         isPathSet = true;
-        var pativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture());
+        var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture());
         var existingPath = Environment.GetEnvironmentVariable("PATH");
-        var newPath = string.Concat(pativeBinaries, Path.PathSeparator, existingPath);
+        var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
         Environment.SetEnvironmentVariable("PATH", newPath);
     }
 
@@ -112,10 +112,10 @@ public class ModuleWeaver
     TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
-        var mscoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
-        if (mscoreAttribute != null)
+        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
+        if (msCoreAttribute != null)
         {
-            return mscoreAttribute;
+            return msCoreAttribute;
         }
         var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
