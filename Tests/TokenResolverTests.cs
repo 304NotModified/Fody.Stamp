@@ -27,10 +27,24 @@ public class TokenResolverTests
 
     private void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
+        if (doWithRepo == null)
+            return;
+
         using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
         {
-            if (doWithRepo != null) doWithRepo(repo);
+            doWithRepo(repo);
         }
+    }
+
+    private bool IsRepoClean(Repository repository)
+    {
+        var repositoryStatus = repository.Index.RetrieveStatus();
+        return
+            repositoryStatus.Added.IsEmpty() &&
+            repositoryStatus.Missing.IsEmpty() &&
+            repositoryStatus.Modified.IsEmpty() &&
+            repositoryStatus.Removed.IsEmpty() &&
+            repositoryStatus.Staged.IsEmpty();
     }
 
     [Test]
@@ -119,17 +133,15 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var isDirty = repo.Index.Count > 0;
-
                 var result = _resolver.ReplaceTokens("%haschanges%", _moduleDefinition, repo);
 
-                if (isDirty)
+                if (IsRepoClean(repo))
                 {
-                    Assert.AreEqual("HasChanges", result);
+                    Assert.AreEqual(string.Empty, result);
                 }
                 else
                 {
-                    Assert.AreEqual(string.Empty, result);
+                    Assert.AreEqual("HasChanges", result);
                 }
             });
     }
