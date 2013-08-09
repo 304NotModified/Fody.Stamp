@@ -117,17 +117,15 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var isDirty = repo.Index.Count > 0;
-
                 var result = resolver.ReplaceTokens("%haschanges%", moduleDefinition, repo);
 
-                if (isDirty)
+                if (repo.IsClean())
                 {
-                    Assert.AreEqual("HasChanges", result);
+                    Assert.AreEqual(string.Empty, result);
                 }
                 else
                 {
-                    Assert.AreEqual(string.Empty, result);
+                    Assert.AreEqual("HasChanges", result);
                 }
             });
     }
