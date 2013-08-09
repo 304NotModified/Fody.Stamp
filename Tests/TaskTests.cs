@@ -53,9 +53,11 @@ public class TaskTests
     [Test]
     public void Win32Resource()
     {
-        var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
-        Assert.IsNotNullOrEmpty(productVersion);
-        Debug.WriteLine(productVersion);
+        var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
+        Assert.IsNotNullOrEmpty(versionInfo.ProductVersion);
+        Assert.IsNotNullOrEmpty(versionInfo.FileVersion);
+        Debug.WriteLine(versionInfo.ProductVersion);
+        Debug.WriteLine(versionInfo.FileVersion);
     }
 
 

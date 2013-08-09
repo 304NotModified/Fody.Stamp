@@ -15,7 +15,8 @@ public class ModuleWeaver
     public string AssemblyFilePath { get; set; }
     static bool isPathSet;
     readonly FormatStringTokenResolver formatStringTokenResolver;
-    string version;
+    string assemblyInfoVersion;
+    Version assemblyVersion;
 
     public ModuleWeaver()
     {
@@ -44,15 +45,15 @@ public class ModuleWeaver
                 LogWarning("No Tip found. Has repo been initialize?");
                 return;
             }
-            var assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+            assemblyVersion = ModuleDefinition.Assembly.Name.Version;
 
             var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             if (customAttribute != null)
             {
-                version = (string) customAttribute.ConstructorArguments[0].Value;
-                version = formatStringTokenResolver.ReplaceTokens(version, ModuleDefinition, repo);
-                VerifyStartsWithVersion(version);
-                customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version);
+                assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
+                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo);
+                VerifyStartsWithVersion(assemblyInfoVersion);
+                customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
             }
             else
             {
@@ -61,13 +62,13 @@ public class ModuleWeaver
                 customAttribute = new CustomAttribute(constructor);
                 if (repo.IsClean())
                 {
-                    version = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
                 }
                 else
                 {
-                    version = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
+                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
                 }
-                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, version));
+                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
             }
         }
@@ -136,7 +137,7 @@ public class ModuleWeaver
     public void AfterWeaving()
     {
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = string.Format("{0} /pv \"{1}\" /high /va", AssemblyFilePath, version);
+        var arguments = string.Format("{0} /pv \"{1}\" /high /va {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
         LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
         var startInfo = new ProcessStartInfo
                         {

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -167,13 +168,6 @@ public class TokenResolverTests
                 var replacementTokens = string.Join("--", environmentVariables.Keys.Cast<string>()
                                                                               .Select(key => "%env[" + key + "]%")
                                                                               .ToArray());
-#if DEBUG
-                Debug.WriteLine("environment variables:");
-                foreach (DictionaryEntry de in environmentVariables)
-                {
-                    Debug.WriteLine("- {0}: {1}", de.Key, de.Value);
-                }
-#endif
                 var result = resolver.ReplaceTokens(replacementTokens, moduleDefinition, repo);
 
                 Assert.AreEqual(expected, result);
