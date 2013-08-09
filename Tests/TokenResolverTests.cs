@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -10,8 +8,8 @@ using NUnit.Framework;
 [TestFixture]
 public class TokenResolverTests
 {
-    private ModuleDefinition _moduleDefinition;
-    private FormatStringTokenResolver _resolver;
+    ModuleDefinition moduleDefinition;
+    FormatStringTokenResolver resolver;
 
     [TestFixtureSetUp]
     public void FixtureSetUp()
@@ -20,12 +18,12 @@ public class TokenResolverTests
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
-        _moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
+        moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
 
-        _resolver = new FormatStringTokenResolver();
+        resolver = new FormatStringTokenResolver();
     }
 
-    private void DoWithCurrentRepo(Action<Repository> doWithRepo)
+    void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
         using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
         {
@@ -38,7 +36,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = _resolver.ReplaceTokens("%version%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%version%", moduleDefinition, repo);
 
                 Assert.AreEqual("1.0.0.0", result);
             });
@@ -49,7 +47,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = _resolver.ReplaceTokens("%version1%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%version1%", moduleDefinition, repo);
 
                 Assert.AreEqual("1", result);
             });
@@ -60,7 +58,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = _resolver.ReplaceTokens("%version2%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%version2%", moduleDefinition, repo);
 
                 Assert.AreEqual("1.0", result);
             });
@@ -71,7 +69,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = _resolver.ReplaceTokens("%version3%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%version3%", moduleDefinition, repo);
 
                 Assert.AreEqual("1.0.0", result);
             });
@@ -82,7 +80,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = _resolver.ReplaceTokens("%version4%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%version4%", moduleDefinition, repo);
 
                 Assert.AreEqual("1.0.0.0", result);
             });
@@ -95,7 +93,7 @@ public class TokenResolverTests
             {
                 var branchName = repo.Head.Name;
 
-                var result = _resolver.ReplaceTokens("%branch%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%branch%", moduleDefinition, repo);
 
                 Assert.AreEqual(branchName, result);
             });
@@ -108,7 +106,7 @@ public class TokenResolverTests
             {
                 var sha = repo.Head.Tip.Sha;
 
-                var result = _resolver.ReplaceTokens("%githash%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%githash%", moduleDefinition, repo);
 
                 Assert.AreEqual(sha, result);
             });
@@ -121,7 +119,7 @@ public class TokenResolverTests
             {
                 var isDirty = repo.Index.Count > 0;
 
-                var result = _resolver.ReplaceTokens("%haschanges%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%haschanges%", moduleDefinition, repo);
 
                 if (isDirty)
                 {
@@ -141,7 +139,7 @@ public class TokenResolverTests
             {
                 var currentUser = Environment.UserName;
 
-                var result = _resolver.ReplaceTokens("%user%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%user%", moduleDefinition, repo);
 
                 Assert.IsTrue(result.EndsWith(currentUser));
             });
@@ -154,7 +152,7 @@ public class TokenResolverTests
             {
                 var machineName = Environment.MachineName;
 
-                var result = _resolver.ReplaceTokens("%machine%", _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens("%machine%", moduleDefinition, repo);
 
                 Assert.AreEqual(machineName, result);
             });
@@ -178,7 +176,7 @@ public class TokenResolverTests
                     Debug.WriteLine("- {0}: {1}", de.Key, de.Value);
                 }
 #endif
-                var result = _resolver.ReplaceTokens(replacementTokens, _moduleDefinition, repo);
+                var result = resolver.ReplaceTokens(replacementTokens, moduleDefinition, repo);
 
                 Assert.AreEqual(expected, result);
             });

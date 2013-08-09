@@ -5,7 +5,7 @@ using System.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
 
-public class ModuleWeaver : IDisposable
+public class ModuleWeaver
 {
     public Action<string> LogInfo { get; set; }
     public Action<string> LogWarning { get; set; }
@@ -133,13 +133,15 @@ public class ModuleWeaver : IDisposable
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 
-    public void Dispose()
+    public void AfterWeaving()
     {
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
+        var arguments = string.Format("{0} /pv \"{1}\" /high /va", AssemblyFilePath, version);
+        LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
         var startInfo = new ProcessStartInfo
                         {
                             FileName = verPatchPath,
-                            Arguments = string.Format("{0} /pv \"{1}\" /high /va", AssemblyFilePath, version),
+                            Arguments = arguments,
                             CreateNoWindow = true,
                             UseShellExecute = false,
                             RedirectStandardOutput = true,

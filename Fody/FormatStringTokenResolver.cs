@@ -32,14 +32,14 @@ public class FormatStringTokenResolver
         return template.Trim();
     }
 
-    private string FormatUserName()
+    string FormatUserName()
     {
         return string.IsNullOrWhiteSpace(Environment.UserDomainName)
                    ? Environment.UserName
                    : string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
     }
 
-    private string FormatEnvironmentVariable(Match match)
+    string FormatEnvironmentVariable(Match match)
     {
         return Environment.GetEnvironmentVariable(match.Groups[1].Value);
     }

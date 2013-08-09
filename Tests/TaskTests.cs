@@ -23,18 +23,18 @@ public class TaskTests
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
-	    var currentDirectory = AssemblyLocation.CurrentDirectory();
-        using (var weavingTask = new ModuleWeaver
-                                 {
-                                     ModuleDefinition = moduleDefinition,
-                                     AddinDirectoryPath = currentDirectory,
-                                     SolutionDirectoryPath = currentDirectory,
-                                 AssemblyFilePath = afterAssemblyPath,
-                                 })
-        {
-            weavingTask.Execute();
+        var currentDirectory = AssemblyLocation.CurrentDirectory();
+        var weavingTask = new ModuleWeaver
+                          {
+                              ModuleDefinition = moduleDefinition,
+                              AddinDirectoryPath = currentDirectory,
+                              SolutionDirectoryPath = currentDirectory,
+                              AssemblyFilePath = afterAssemblyPath,
+                          };
+
+        weavingTask.Execute();
         moduleDefinition.Write(afterAssemblyPath);
-        }
+        weavingTask.AfterWeaving();
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
@@ -43,7 +43,9 @@ public class TaskTests
     [Test]
     public void EnsureAttributeExists()
     {
-        var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).First();
+        var customAttributes = (AssemblyInformationalVersionAttribute)assembly
+            .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
+            .First();
         Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
     }

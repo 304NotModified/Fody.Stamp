@@ -25,18 +25,18 @@ public class ExistingTests
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
-	    var currentDirectory = AssemblyLocation.CurrentDirectory();
-        using (var moduleWeaver = new ModuleWeaver
-                                  {
-                                      ModuleDefinition = moduleDefinition,
-                                      AddinDirectoryPath = currentDirectory,
-                                      SolutionDirectoryPath = currentDirectory,
-                                      AssemblyFilePath = afterAssemblyPath,
-                                  })
-        {
-            moduleWeaver.Execute();
-            moduleDefinition.Write(afterAssemblyPath);
-        }
+        var currentDirectory = AssemblyLocation.CurrentDirectory();
+        var moduleWeaver = new ModuleWeaver
+                           {
+                               ModuleDefinition = moduleDefinition,
+                               AddinDirectoryPath = currentDirectory,
+                               SolutionDirectoryPath = currentDirectory,
+                               AssemblyFilePath = afterAssemblyPath,
+                           };
+
+        moduleWeaver.Execute();
+        moduleDefinition.Write(afterAssemblyPath);
+        moduleWeaver.AfterWeaving();
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
