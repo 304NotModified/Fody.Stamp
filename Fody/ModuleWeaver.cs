@@ -157,7 +157,11 @@ public class ModuleWeaver
                         };
         using (var process = Process.Start(startInfo))
         {
-            process.WaitForExit(200);
+            if (!process.WaitForExit(1000))
+            {
+                var timeoutMessage = string.Format("Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments);
+                throw new WeavingException(timeoutMessage);
+            }
 
             if (process.ExitCode == 0)
             {
@@ -165,10 +169,7 @@ public class ModuleWeaver
             }
             var output = process.StandardOutput.ReadToEnd();
             var error = process.StandardError.ReadToEnd();
-            var message = string.Format(
-@"Failed to apply product version to Win32 resources.
-Output: {0}
-Error: {1}", output, error);
+            var message = string.Format("Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error);
             throw new WeavingException(message);
         }
     }
