@@ -17,6 +17,7 @@ public class ModuleWeaver
     readonly FormatStringTokenResolver formatStringTokenResolver;
     string assemblyInfoVersion;
     Version assemblyVersion;
+    bool dotGitDirExists;
 
     public ModuleWeaver()
     {
@@ -36,6 +37,7 @@ public class ModuleWeaver
             LogWarning("No .git directory found.");
             return;
         }
+        dotGitDirExists = true;
 
         using (var repo = GetRepo(gitDir))
         {
@@ -136,6 +138,10 @@ public class ModuleWeaver
 
     public void AfterWeaving()
     {
+        if (!dotGitDirExists)
+        {
+            return;
+        }
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
         var arguments = string.Format("{0} /pv \"{1}\" /high /va {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
         LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
