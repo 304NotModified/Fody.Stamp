@@ -36,6 +36,8 @@ The tokens are:
 - `%branch%` is replaced with the branch name of the repository
 - `%haschanges%` is replaced with the string "HasChanges" if the repository is dirty, else a blank string
 
+> NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
+
 ## Icon
 
 <a href="http://thenounproject.com/noun/stamp/#icon-No8787" target="_blank">Stamp</a> designed by <a href="http://thenounproject.com/rohithdezinr" target="_blank">Rohith M S</a> from The Noun Project
