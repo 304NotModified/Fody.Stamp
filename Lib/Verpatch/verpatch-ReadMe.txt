@@ -1,9 +1,7 @@
 
-https://ddverpatch.codeplex.com/
-
 Verpatch - a tool to patch win32 version resources on .exe or .dll files,
 
-Version: 1.0.12 (20-June-2013)
+Version: 1.0.14 (04-Aug-2013)
 
 Verpatch is a command line tool for adding and editing the version information
 of Windows executable files (applications, DLLs, kernel drivers)
