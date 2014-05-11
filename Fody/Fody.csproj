@@ -13,7 +13,6 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,17 +40,20 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\LibGit2Sharp.0.17.0.0\lib\net35\LibGit2Sharp.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\FodyCecil.1.24.0-beta2\lib\net40\Mono.Cecil.dll</HintPath>
+    <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FodyCecil.1.24.0-beta3\lib\net40\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\packages\FodyCecil.1.24.0-beta2\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FodyCecil.1.24.0-beta3\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\packages\FodyCecil.1.24.0-beta2\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <HintPath>..\packages\FodyCecil.1.24.0-beta3\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\packages\FodyCecil.1.24.0-beta2\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FodyCecil.1.24.0-beta3\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -88,9 +90,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    
-if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
+    <PostBuildEvent>if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.17.0.0\lib\net35\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
@@ -103,39 +103,26 @@ xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.17.0.0\lib\net35\NativeBin
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\PepitaPackage.1.20.0.0\build\PepitaPackage.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PepitaPackage.1.20.0.0\build\PepitaPackage.targets'))" />
   </Target>
-
-
-
-
-
-  <Target Name="Clean">
-     <ItemGroup>
-       <FilesToDelete Include="$(SolutionDir)NuGetBuild\**\*.*" />
-     </ItemGroup>
-     <Delete Files="@(FilesToDelete)" />
-   </Target>
-   <Target Name="Build" DependsOnTargets="NuGetBuild" />
-   <Target Name="ReBuild" DependsOnTargets="NuGetBuild" />
-   <Target Name="NuGetBuild" DependsOnTargets="Clean"> 
-   
-   <MakeDir Directories="$(SolutionDir)NuGetBuild" />
-     <Exec Command='"$(SolutionDir)Tools\ilmerge.exe" /out:"$(SolutionDir)NuGetBuild\Stamp.Fody.dll" "$(TargetDir)Stamp.Fody.dll" "$(TargetDir)LibGit2Sharp.dll"  /target:library /targetplatform:v4' />
-     
-     <CreateItem Include="$(TargetDir)\NativeBinaries\amd64\*.dll">
-         <Output TaskParameter="Include" ItemName="amd64"/>
-     </CreateItem>    
-     <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
-     <Copy SourceFiles="$(SolutionDir)Lib\Verpatch\verpatch.exe" DestinationFolder="$(SolutionDir)NuGetBuild\" />
-     
-     <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
-         <Output TaskParameter="Include" ItemName="x86"/>
-     </CreateItem>    
-     <Copy SourceFiles="@(x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
- <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
-     <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
-     <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
-     <Copy SourceFiles="$(ProjectDir)NugetAssets\Stamp.nuspec" DestinationFolder="$(SolutionDir)NuGetBuild" />
-     <PepitaPackage.CreatePackageTask NuGetBuildDirectory="$(SolutionDir)NuGetBuild" MetadataAssembly="$(TargetDir)Stamp.Fody.dll" />
-   </Target>
-
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <FilesToDelete Include="$(SolutionDir)NuGetBuild\**\*.*" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <MakeDir Directories="$(SolutionDir)NuGetBuild" />
+    <Exec Command="&quot;$(SolutionDir)Tools\ilmerge.exe&quot; /out:&quot;$(SolutionDir)NuGetBuild\Stamp.Fody.dll&quot; &quot;$(TargetDir)Stamp.Fody.dll&quot; &quot;$(TargetDir)LibGit2Sharp.dll&quot;  /target:library /targetplatform:v4" />
+    <CreateItem Include="$(TargetDir)\NativeBinaries\amd64\*.dll">
+      <Output TaskParameter="Include" ItemName="amd64" />
+    </CreateItem>
+    <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
+    <Copy SourceFiles="$(SolutionDir)Lib\Verpatch\verpatch.exe" DestinationFolder="$(SolutionDir)NuGetBuild\" />
+    <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
+      <Output TaskParameter="Include" ItemName="x86" />
+    </CreateItem>
+    <Copy SourceFiles="@(x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
+    <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
+    <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
+    <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps1" DestinationFolder="$(SolutionDir)NuGetBuild\Tools" />
+    <Copy SourceFiles="$(ProjectDir)NugetAssets\Stamp.nuspec" DestinationFolder="$(SolutionDir)NuGetBuild" />
+    <PepitaPackage.CreatePackageTask NuGetBuildDirectory="$(SolutionDir)NuGetBuild" MetadataAssembly="$(TargetDir)Stamp.Fody.dll" />
+  </Target>
 </Project>
