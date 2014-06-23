@@ -2,11 +2,15 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
 
 public class ModuleWeaver
 {
+    private const string VerPatchWaitTimeoutConfigKey = "VerPatchWaitTimeoutInMilliseconds";
+
+    public XElement Config { get; set; }
     public Action<string> LogInfo { get; set; }
     public Action<string> LogWarning { get; set; }
     public ModuleDefinition ModuleDefinition { get; set; }
@@ -136,6 +140,20 @@ public class ModuleWeaver
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 
+    Int32? GetVerPatchWaitTimeout()
+    {
+        var timeoutSetting = Config.Attributes().FirstOrDefault(attr => String.Equals(attr.Name.LocalName, VerPatchWaitTimeoutConfigKey));
+        if (timeoutSetting != null)
+        {
+            Int32 timeoutInMilliseconds;
+            if (Int32.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
+            {
+                return timeoutInMilliseconds;
+            }
+        }
+        return null;
+    }
+
     public void AfterWeaving()
     {
         if (!dotGitDirExists)
@@ -157,7 +175,9 @@ public class ModuleWeaver
                         };
         using (var process = Process.Start(startInfo))
         {
-            if (!process.WaitForExit(1000))
+            var waitTimeoutInMilliseconds = GetVerPatchWaitTimeout().GetValueOrDefault(1000);
+            LogInfo(string.Format("Waiting {0} ms while verpatch.exe is processing assembly", waitTimeoutInMilliseconds));
+            if (!process.WaitForExit(waitTimeoutInMilliseconds))
             {
                 var timeoutMessage = string.Format("Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments);
                 throw new WeavingException(timeoutMessage);
