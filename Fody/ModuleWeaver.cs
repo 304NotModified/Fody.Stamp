@@ -8,8 +8,6 @@ using Mono.Cecil;
 
 public class ModuleWeaver
 {
-    private const string VerPatchWaitTimeoutConfigKey = "VerPatchWaitTimeoutInMilliseconds";
-
     public XElement Config { get; set; }
     public Action<string> LogInfo { get; set; }
     public Action<string> LogWarning { get; set; }
@@ -142,14 +140,20 @@ public class ModuleWeaver
 
     Int32? GetVerPatchWaitTimeout()
     {
-        var timeoutSetting = Config.Attributes().FirstOrDefault(attr => String.Equals(attr.Name.LocalName, VerPatchWaitTimeoutConfigKey));
-        if (timeoutSetting != null)
+        if (Config == null)
         {
-            Int32 timeoutInMilliseconds;
-            if (Int32.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
-            {
-                return timeoutInMilliseconds;
-            }
+            return null;
+        }
+        var xAttributes = Config.Attributes();
+        var timeoutSetting = xAttributes.FirstOrDefault(attr => attr.Name.LocalName == "VerPatchWaitTimeoutInMilliseconds");
+        if (timeoutSetting == null)
+        {
+            return null;
+        }
+        Int32 timeoutInMilliseconds;
+        if (Int32.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
+        {
+            return timeoutInMilliseconds;
         }
         return null;
     }
