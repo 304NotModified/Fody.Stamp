@@ -7,7 +7,7 @@ public class FormatStringTokenResolver
 {
     static Regex reEnvironmentToken = new Regex(@"%env\[([^\]]+)]%");
 
-    public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo)
+    public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo, string changestring)
     {
         var assemblyVersion = moduleDefinition.Assembly.Name.Version;
         var branch = repo.Head;
@@ -19,10 +19,9 @@ public class FormatStringTokenResolver
         template = template.Replace("%version4%", assemblyVersion.ToString(4));
 
         template = template.Replace("%githash%", branch.Tip.Sha);
-        
-        template = template.Replace("%branch%", repo.Head.Name);
-        
-        template = template.Replace("%haschanges%", repo.IsClean() ? "" : "HasChanges");
+        template = template.Replace("%shorthash%", branch.Tip.Sha.Substring(0, 8));
+        template = template.Replace("%branch%", branch.Name);
+        template = template.Replace("%haschanges%", repo.IsClean() ? "" : changestring);
 
         template = template.Replace("%user%", FormatUserName());
         template = template.Replace("%machine%", Environment.MachineName);

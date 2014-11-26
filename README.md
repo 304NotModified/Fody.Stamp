@@ -33,10 +33,16 @@ The tokens are:
 - `%version3%` is replaced with the major, minor, and revision version (1.0.0)
 - `%version4%` is replaced with the major, minor, revision, and build version (1.0.0.0)
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
+- `%shorthash%` is replaced with the first eight characters of %githash%
 - `%branch%` is replaced with the branch name of the repository
-- `%haschanges%` is replaced with the string "HasChanges" if the repository is dirty, else a blank string
+- `%haschanges%` is replaced with the string defined in the ChangeString attribute in the configuration, see below.
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
+
+## Configuration
+You can add the following attributes to the Stamp element in in FodyWeavers.xml.
+- `ChangeString` is the string to be inserted when the repository isn't clean, the default is "HasChanges".
+- `UseProjectGit` is a boolean value that determines is ProjectDir should be used as a starting point when looking for the git repository. The default is false.
 
 ## Icon
 
