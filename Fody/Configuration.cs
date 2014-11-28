@@ -19,9 +19,8 @@ public class Configuration {
             try {
                 this.UseProject = Convert.ToBoolean(attr.Value);
             } catch (Exception ex) {
-                throw new WeavingException( String.Format("Unable to parse '{0}' as a boolean, please use true or false.") );
+                throw new WeavingException( String.Format("Unable to parse '{0}' as a boolean, please use true or false.", attr.Value) );
             }
-            
         }
 
         attr = config.Attribute("ChangeString");
