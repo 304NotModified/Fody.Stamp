@@ -9,24 +9,24 @@ public class Configuration {
 
     public Configuration(XElement config) {
         UseProject = false;
+        ChangeString = "HasChanges";
 
         if ( config == null )
             return;
 
         var attr = config.Attribute("UseProjectGit");
-        if ( attr != null && !String.IsNullOrWhiteSpace(attr.Value) ) {
+        if ( attr != null ) {
             try {
                 this.UseProject = Convert.ToBoolean(attr.Value);
-            } catch {
-                this.UseProject = false;
+            } catch (Exception ex) {
+                throw new WeavingException( String.Format("Unable to parse '{0}' as a boolean, please use true or false.") );
             }
+            
         }
 
         attr = config.Attribute("ChangeString");
         if ( attr != null && !String.IsNullOrWhiteSpace(attr.Value) ) {
             this.ChangeString = config.Attribute("ChangeString").Value;
-        } else {
-            this.ChangeString = "HasChanges";
         }
     }
 }

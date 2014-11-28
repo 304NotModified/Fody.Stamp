@@ -40,10 +40,25 @@ The tokens are:
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 
 ## Configuration
-You can add the following attributes to the Stamp element in in FodyWeavers.xml.
-- `ChangeString` is the string to be inserted when the repository isn't clean, the default is "HasChanges".
-- `UseProjectGit` is a boolean value that determines is ProjectDir should be used as a starting point when looking for the git repository. The default is false.
 
+All config options are attributes of Stamp in FodyWeavers.xml
+
+### ChangeString
+
+Define the string used to indicate that the code was built from a non clean repository.
+
+*Default is `HasChanges`*
+
+	<Fody ChangeString="New text" />
+
+### UseProjectGit
+
+Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (true) or the SolutionDir (false).
+
+*Default is `false`*
+
+	<Fody UseProjectGit='true' />
+	
 ## Icon
 
 <a href="http://thenounproject.com/noun/stamp/#icon-No8787" target="_blank">Stamp</a> designed by <a href="http://thenounproject.com/rohithdezinr" target="_blank">Rohith M S</a> from The Noun Project
