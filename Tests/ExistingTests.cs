@@ -54,7 +54,7 @@ public class ExistingTests
     {
         var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
 
-        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
         {
             var nameOfCurrentBranch = repo.Head.Name;
             Assert.True(productVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
@@ -65,7 +65,7 @@ public class ExistingTests
     [Test]
     public void TemplateIsReplaced()
     {
-        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
         {
             var nameOfCurrentBranch = repo.Head.Name;
             

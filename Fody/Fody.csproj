@@ -66,7 +66,6 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="FormatStringTokenResolver.cs" />
-    <Compile Include="GitDirFinder.cs" />
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />

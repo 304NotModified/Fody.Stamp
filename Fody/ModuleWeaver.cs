@@ -40,7 +40,7 @@ public class ModuleWeaver
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = GitDirFinder.TreeWalkForGitDir(config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath);
+        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");

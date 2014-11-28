@@ -25,7 +25,7 @@ public class TokenResolverTests
 
     void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
-        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
         {
             if (doWithRepo != null) doWithRepo(repo);
         }
