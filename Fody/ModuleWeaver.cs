@@ -13,6 +13,7 @@ public class ModuleWeaver
     public Action<string> LogWarning { get; set; }
     public ModuleDefinition ModuleDefinition { get; set; }
     public string SolutionDirectoryPath { get; set; }
+	public string ProjectDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
     static bool isPathSet;
@@ -31,31 +32,42 @@ public class ModuleWeaver
     public void Execute()
     {
         SetSearchPath();
+
+        var config = new Configuration(Config);
+
+        LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
+
+
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = GitDirFinder.TreeWalkForGitDir(SolutionDirectoryPath);
+        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
             return;
+        } else {
+            LogInfo("Found git repository in " + gitDir);
         }
+
         dotGitDirExists = true;
 
         using (var repo = GetRepo(gitDir))
         {
             var branch = repo.Head;
+
             if (branch.Tip == null)
             {
-                LogWarning("No Tip found. Has repo been initialize?");
+                LogWarning("No Tip found. Has repo been initialized?");
                 return;
             }
+
             assemblyVersion = ModuleDefinition.Assembly.Name.Version;
 
             var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             if (customAttribute != null)
             {
                 assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo);
+                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
             }
@@ -64,14 +76,9 @@ public class ModuleWeaver
                 var versionAttribute = GetVersionAttribute();
                 var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
-                if (repo.IsClean())
-                {
-                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
-                }
-                else
-                {
-                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
-                }
+
+                assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}{3}", assemblyVersion, repo.Head.Name, branch.Tip.Sha, repo.IsClean() ? "" : " " + config.ChangeString);
+
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
             }
@@ -88,7 +95,7 @@ public class ModuleWeaver
         }
     }
 
-    static Repository GetRepo(string gitDir)
+    internal static Repository GetRepo(string gitDir)
     {
         try
         {
@@ -165,7 +172,7 @@ public class ModuleWeaver
             return;
         }
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = string.Format("\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
+        var arguments = string.Format("\"{0}\" /pv \"{1}\" /high {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
         LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
         var startInfo = new ProcessStartInfo
                         {

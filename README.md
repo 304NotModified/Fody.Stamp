@@ -33,11 +33,32 @@ The tokens are:
 - `%version3%` is replaced with the major, minor, and revision version (1.0.0)
 - `%version4%` is replaced with the major, minor, revision, and build version (1.0.0.0)
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
+- `%shorthash%` is replaced with the first eight characters of %githash%
 - `%branch%` is replaced with the branch name of the repository
-- `%haschanges%` is replaced with the string "HasChanges" if the repository is dirty, else a blank string
+- `%haschanges%` is replaced with the string defined in the ChangeString attribute in the configuration, see below.
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 
+## Configuration
+
+All config options are attributes of Stamp in FodyWeavers.xml
+
+### ChangeString
+
+Define the string used to indicate that the code was built from a non clean repository.
+
+*Default is `HasChanges`*
+
+	<Fody ChangeString="New text" />
+
+### UseProjectGit
+
+Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (true) or the SolutionDir (false).
+
+*Default is `false`*
+
+	<Fody UseProjectGit='true' />
+	
 ## Icon
 
 <a href="http://thenounproject.com/noun/stamp/#icon-No8787" target="_blank">Stamp</a> designed by <a href="http://thenounproject.com/rohithdezinr" target="_blank">Rohith M S</a> from The Noun Project
