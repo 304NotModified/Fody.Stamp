@@ -45,9 +45,8 @@ public class ModuleWeaver
         {
             LogWarning("No .git directory found.");
             return;
-        } else {
-            LogInfo("Found git repository in " + gitDir);
         }
+        LogInfo("Found git repository in " + gitDir);
 
         dotGitDirExists = true;
 
