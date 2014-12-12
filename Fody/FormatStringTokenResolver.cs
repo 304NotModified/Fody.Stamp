@@ -6,6 +6,11 @@ using Mono.Cecil;
 public class FormatStringTokenResolver
 {
     static Regex reEnvironmentToken = new Regex(@"%env\[([^\]]+)]%");
+    static Regex reNow = new Regex(@"%now:([^%]+)%");
+    static Regex reUtcNow = new Regex(@"%utcnow:([^%]+)%");
+
+    static DateTime now = DateTime.Now;
+    static DateTime utcNow = DateTime.UtcNow;
 
     public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo, string changestring)
     {
@@ -18,6 +23,9 @@ public class FormatStringTokenResolver
         template = template.Replace("%version3%", assemblyVersion.ToString(3));
         template = template.Replace("%version4%", assemblyVersion.ToString(4));
 
+        template = template.Replace("%now%", now.ToShortDateString());
+        template = template.Replace("%utcnow%", utcNow.ToShortDateString());
+
         template = template.Replace("%githash%", branch.Tip.Sha);
         template = template.Replace("%shorthash%", branch.Tip.Sha.Substring(0, 8));
         template = template.Replace("%branch%", branch.Name);
@@ -27,6 +35,8 @@ public class FormatStringTokenResolver
         template = template.Replace("%machine%", Environment.MachineName);
 
         template = reEnvironmentToken.Replace(template, FormatEnvironmentVariable);
+        template = reNow.Replace(template, FormatTime);
+        template = reUtcNow.Replace(template, FormatUtcTime);
 
         return template.Trim();
     }
@@ -41,5 +51,15 @@ public class FormatStringTokenResolver
     string FormatEnvironmentVariable(Match match)
     {
         return Environment.GetEnvironmentVariable(match.Groups[1].Value);
+    }
+
+    string FormatTime(Match match)
+    {
+        return now.ToString(match.Groups[1].Value);
+    }
+
+    string FormatUtcTime(Match match)
+    {
+        return utcNow.ToString(match.Groups[1].Value);
     }
 }
