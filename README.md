@@ -4,12 +4,11 @@
 
 Stamps an assembly with git data.
 
-### Nuget package
 
-Available here http://nuget.org/packages/Stamp.Fody 
+## The nuget package  [![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
 
-To Install from the Nuget Package Manager Console 
-    
+https://nuget.org/packages/Stamp.Fody/
+
     PM> Install-Package Stamp.Fody
 
 ## What it does 
