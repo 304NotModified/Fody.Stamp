@@ -73,7 +73,7 @@ public class ModuleWeaver
             else
             {
                 var versionAttribute = GetVersionAttribute();
-                var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
+                var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
                 assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}{3}", assemblyVersion, repo.Head.Name, branch.Tip.Sha, repo.IsClean() ? "" : " " + config.ChangeString);
