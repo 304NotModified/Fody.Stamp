@@ -12,7 +12,7 @@ public class GitTests
     {
 		using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
 		{
-			var repositoryStatus = repo.Index.RetrieveStatus();
+			var repositoryStatus = repo.RetrieveStatus();
 			var clean =
 				repositoryStatus.Added.IsEmpty() &&
 				repositoryStatus.Missing.IsEmpty() &&

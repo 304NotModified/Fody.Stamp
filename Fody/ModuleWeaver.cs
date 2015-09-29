@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
+using Version = System.Version;
 
 public class ModuleWeaver
 {

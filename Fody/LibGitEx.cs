@@ -4,7 +4,7 @@ public static class LibGitEx
 {
 	public static bool IsClean(this Repository repository)
 	{
-		var repositoryStatus = repository.Index.RetrieveStatus();
+		var repositoryStatus = repository.RetrieveStatus();
 		return 
 			repositoryStatus.Added.IsEmpty() &&
 			repositoryStatus.Missing.IsEmpty() &&
