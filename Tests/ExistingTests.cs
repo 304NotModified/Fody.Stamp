@@ -11,6 +11,7 @@ using NUnit.Framework;
 public class ExistingTests
 {
     Assembly assembly;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     string beforeAssemblyPath;
     string afterAssemblyPath;
 

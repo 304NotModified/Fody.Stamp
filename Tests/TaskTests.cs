@@ -9,6 +9,7 @@ using NUnit.Framework;
 public class TaskTests
 {
     Assembly assembly;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     string beforeAssemblyPath;
     string afterAssemblyPath;
 
@@ -47,7 +48,7 @@ public class TaskTests
             .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
             .First();
         Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
-        Debug.WriteLine(customAttributes.InformationalVersion);
+        Trace.WriteLine(customAttributes.InformationalVersion);
     }
 
     [Test]
@@ -56,8 +57,8 @@ public class TaskTests
         var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
         Assert.IsNotNullOrEmpty(versionInfo.ProductVersion);
         Assert.IsNotNullOrEmpty(versionInfo.FileVersion);
-        Debug.WriteLine(versionInfo.ProductVersion);
-        Debug.WriteLine(versionInfo.FileVersion);
+        Trace.WriteLine(versionInfo.ProductVersion);
+        Trace.WriteLine(versionInfo.FileVersion);
     }
 
 

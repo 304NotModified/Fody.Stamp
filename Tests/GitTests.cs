@@ -19,9 +19,9 @@ public class GitTests
 				repositoryStatus.Modified.IsEmpty() &&
 				repositoryStatus.Removed.IsEmpty() &&
 				repositoryStatus.Staged.IsEmpty();
-			Debug.WriteLine(clean);
-			Debug.WriteLine(repo.Head.Name);
-            Debug.WriteLine(repo.Head.Tip.Sha);
+			Trace.WriteLine(clean);
+            Trace.WriteLine(repo.Head.Name);
+            Trace.WriteLine(repo.Head.Tip.Sha);
         }
     }
 }
