@@ -77,7 +77,7 @@ public class ModuleWeaver
                 var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
-                assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}{3}", assemblyVersion, repo.Head.Name, branch.Tip.Sha, repo.IsClean() ? "" : " " + config.ChangeString);
+                assemblyInfoVersion = $"{assemblyVersion} Head:'{repo.Head.Name}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
 
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
@@ -145,7 +145,7 @@ public class ModuleWeaver
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 
-    Int32? GetVerPatchWaitTimeout()
+    int? GetVerPatchWaitTimeout()
     {
         if (Config == null)
         {
@@ -157,8 +157,8 @@ public class ModuleWeaver
         {
             return null;
         }
-        Int32 timeoutInMilliseconds;
-        if (Int32.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
+        int timeoutInMilliseconds;
+        if (int.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
         {
             return timeoutInMilliseconds;
         }
@@ -172,8 +172,8 @@ public class ModuleWeaver
             return;
         }
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = string.Format("\"{0}\" /pv \"{1}\" /high {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
-        LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
+        var arguments = $"\"{AssemblyFilePath}\" /pv \"{assemblyInfoVersion}\" /high {assemblyVersion}";
+        LogInfo($"Patching version using: {verPatchPath} {arguments}");
         var startInfo = new ProcessStartInfo
                         {
                             FileName = verPatchPath,
@@ -187,10 +187,10 @@ public class ModuleWeaver
         using (var process = Process.Start(startInfo))
         {
             var waitTimeoutInMilliseconds = GetVerPatchWaitTimeout().GetValueOrDefault(1000);
-            LogInfo(string.Format("Waiting {0} ms while verpatch.exe is processing assembly", waitTimeoutInMilliseconds));
+            LogInfo($"Waiting {waitTimeoutInMilliseconds} ms while verpatch.exe is processing assembly");
             if (!process.WaitForExit(waitTimeoutInMilliseconds))
             {
-                var timeoutMessage = string.Format("Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments);
+                var timeoutMessage = $"Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {verPatchPath} {arguments}";
                 throw new WeavingException(timeoutMessage);
             }
 
@@ -200,7 +200,7 @@ public class ModuleWeaver
             }
             var output = process.StandardOutput.ReadToEnd();
             var error = process.StandardError.ReadToEnd();
-            var message = string.Format("Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error);
+            var message = $"Failed to apply product version to Win32 resources.\r\nOutput: {output}\r\nError: {error}";
             throw new WeavingException(message);
         }
     }

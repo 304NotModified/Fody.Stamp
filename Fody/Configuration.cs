@@ -22,12 +22,12 @@ public class Configuration
             }
             catch (Exception)
             {
-                throw new WeavingException(String.Format("Unable to parse '{0}' as a boolean, please use true or false.", attr.Value));
+                throw new WeavingException($"Unable to parse '{attr.Value}' as a boolean, please use true or false.");
             }
         }
 
         attr = config.Attribute("ChangeString");
-        if (attr != null && !String.IsNullOrWhiteSpace(attr.Value))
+        if (!string.IsNullOrWhiteSpace(attr?.Value))
         {
             ChangeString = config.Attribute("ChangeString").Value;
         }

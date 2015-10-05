@@ -45,7 +45,7 @@ public class FormatStringTokenResolver
     {
         return string.IsNullOrWhiteSpace(Environment.UserDomainName)
                    ? Environment.UserName
-                   : string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
+                   : $@"{Environment.UserDomainName}\{Environment.UserName}";
     }
 
     string FormatEnvironmentVariable(Match match)

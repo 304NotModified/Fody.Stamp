@@ -27,7 +27,7 @@ public class TokenResolverTests
     {
         using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
         {
-            if (doWithRepo != null) doWithRepo(repo);
+            doWithRepo?.Invoke(repo);
         }
     }
 
