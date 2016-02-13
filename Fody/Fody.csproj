@@ -76,7 +76,6 @@
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NugetAssets\dotnet.targets" />
     <None Include="NugetAssets\install.ps" />
     <None Include="NugetAssets\Stamp.Fody.nuspec">
       <SubType>Designer</SubType>
@@ -115,7 +114,6 @@
     <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\install.ps1" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\uninstall.ps1" />
-    <Copy SourceFiles="$(ProjectDir)NugetAssets\dotnet.targets" DestinationFiles="$(SolutionDir)NuGetBuild\build\dotnet\Stamp.Fody.targets" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\Stamp.Fody.nuspec" DestinationFolder="$(SolutionDir)NuGetBuild" />
     <PepitaPackage.CreatePackageTask NuGetBuildDirectory="$(SolutionDir)NuGetBuild" MetadataAssembly="$(TargetDir)Stamp.Fody.dll" />
   </Target>
