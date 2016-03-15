@@ -98,6 +98,14 @@
     <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
     <Compile Include="PeImage\SubStream.cs" />
     <Compile Include="PeImage\SubSystemType.cs" />
+    <Compile Include="VersionResources\VersionDataType.cs" />
+    <Compile Include="VersionResources\VersionHeader.cs" />
+    <Compile Include="VersionResources\VFT.cs" />
+    <Compile Include="VersionResources\VFT2.cs" />
+    <Compile Include="VersionResources\VOS.cs" />
+    <Compile Include="VersionResources\VS_FF.cs" />
+    <Compile Include="VersionResources\VS_FIXEDFILEINFO.cs" />
+    <Compile Include="VersionResources\VS_VERSIONINFO.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
