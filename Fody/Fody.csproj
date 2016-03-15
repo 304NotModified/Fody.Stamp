@@ -73,6 +73,46 @@
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
+    <Compile Include="PeImage\BinaryReaderExtensions.cs" />
+    <Compile Include="PeImage\BinaryWriterExtensions.cs" />
+    <Compile Include="PeImage\DllCharacteristicsType.cs" />
+    <Compile Include="PeImage\Helpers.cs" />
+    <Compile Include="PeImage\IImageOptionalHeader.cs" />
+    <Compile Include="PeImage\IMAGE_DATA_DIRECTORY.cs" />
+    <Compile Include="PeImage\IMAGE_DOS_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_CHARACTERISTICS.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_MACHINE.cs" />
+    <Compile Include="PeImage\IMAGE_NT_HEADERS.cs" />
+    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_32.cs" />
+    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_64.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DATA_ENTRY.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY_ENTRY.cs" />
+    <Compile Include="PeImage\IMAGE_SECTION_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_SECTION_HEADER_CHARACTERISTICS.cs" />
+    <Compile Include="PeImage\MagicType.cs" />
+    <Compile Include="PeImage\PeFormatException.cs" />
+    <Compile Include="PeImage\PeImage.cs" />
+    <Compile Include="PeImage\ResourceDirectory.cs" />
+    <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
+    <Compile Include="PeImage\SubStream.cs" />
+    <Compile Include="PeImage\SubSystemType.cs" />
+    <Compile Include="VersionResources\BinaryReaderExtensions.cs" />
+    <Compile Include="VersionResources\StringTable.cs" />
+    <Compile Include="VersionResources\VersionDataType.cs" />
+    <Compile Include="VersionResources\VersionHeader.cs" />
+    <Compile Include="VersionResources\VersionInfo.cs" />
+    <Compile Include="VersionResources\VersionResource.cs" />
+    <Compile Include="VersionResources\VersionResourceFormatException.cs" />
+    <Compile Include="VersionResources\VersionResourceReader.cs" />
+    <Compile Include="VersionResources\VersionResourceWriter.cs" />
+    <Compile Include="VersionResources\VFT.cs" />
+    <Compile Include="VersionResources\VFT2.cs" />
+    <Compile Include="VersionResources\VOS.cs" />
+    <Compile Include="VersionResources\VS_FF.cs" />
+    <Compile Include="VersionResources\VS_FIXEDFILEINFO.cs" />
+    <Compile Include="VersionResources\VS_VERSIONINFO.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -84,14 +124,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Lib\Verpatch\verpatch-ReadMe.txt">
-      <Link>verpatch-ReadMe.txt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Lib\Verpatch\verpatch.exe">
-      <Link>verpatch.exe</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="NugetAssets\Fody_ToBeDeleted.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -106,7 +138,6 @@
       <Output TaskParameter="Include" ItemName="amd64" />
     </CreateItem>
     <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
-    <Copy SourceFiles="$(SolutionDir)Lib\Verpatch\verpatch.exe" DestinationFolder="$(SolutionDir)NuGetBuild\" />
     <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
       <Output TaskParameter="Include" ItemName="x86" />
     </CreateItem>
