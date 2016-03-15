@@ -32,7 +32,7 @@ namespace Fody.PeImage
         /// Contains the "MZ" magic value.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
-        public char[] Magic;
+        public byte[] Magic;
 
         /// <summary>
         /// Bytes on last page of file

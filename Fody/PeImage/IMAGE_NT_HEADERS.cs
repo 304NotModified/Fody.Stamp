@@ -26,20 +26,18 @@ namespace Fody.PeImage
     /// Represents the PE header format.
     /// </summary>
     /// <seealso href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms680336(v=vs.85).aspx"/>
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     internal struct IMAGE_NT_HEADERS
     {
         /// <summary>
         /// A 4-byte signature identifying the file as a PE image. The bytes are <c>PE\0\0</c>.
         /// </summary>
-        [FieldOffset(0)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public char[] Signature;
+        public byte[] Signature;
 
         /// <summary>
         /// An <see cref="IMAGE_FILE_HEADER"/> structure that specifies the file header.
         /// </summary>
-        [FieldOffset(4)]
         public IMAGE_FILE_HEADER FileHeader;
     }
 }

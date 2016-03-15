@@ -89,7 +89,7 @@ namespace Fody.PeImage
         {
             var dosHeader = this.ReadStruct<IMAGE_DOS_HEADER>(0);
 
-            if (new string(dosHeader.Magic) != "MZ")
+            if (Encoding.ASCII.GetString(dosHeader.Magic) != "MZ")
             {
                 throw new PeFormatException();
             }
@@ -98,7 +98,7 @@ namespace Fody.PeImage
             // Read the NT header
             var ntHeader = this.ReadStruct<IMAGE_NT_HEADERS>(dosHeader.Lfanew);
 
-            if (new string(ntHeader.Signature) != "PE\0\0")
+            if (Encoding.ASCII.GetString(ntHeader.Signature) != "PE\0\0")
             {
                 throw new PeFormatException();
             }
