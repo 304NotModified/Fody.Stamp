@@ -171,6 +171,13 @@ public class ModuleWeaver
         {
             return;
         }
+        
+        if (Environment.OSVersion.Platform == PlatformID.Unix || 
+            Environment.OSVersion.Platform == PlatformID.MacOSX)
+        {
+            return;
+        }
+        
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
         var arguments = $"\"{AssemblyFilePath}\" /pv \"{assemblyInfoVersion}\" /high {assemblyVersion}";
         LogInfo($"Patching version using: {verPatchPath} {arguments}");
