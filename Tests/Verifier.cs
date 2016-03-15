@@ -30,14 +30,30 @@ public static class Verifier
 
     static string GetPathToPEVerify()
     {
-        var exePath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\PEVerify.exe");
+        var windowsSdkFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows");
 
-        if (!File.Exists(exePath))
+        if (!Directory.Exists(windowsSdkFolder))
         {
-            exePath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Microsoft SDKs\Windows\v8.0A\Bin\NETFX 4.0 Tools\PEVerify.exe");
+            throw new DirectoryNotFoundException("Could not find the Windows SDK directory");
         }
-        return exePath;
+
+        foreach (var version in Directory.GetDirectories(windowsSdkFolder))
+        {
+            // Find the .NETFX tools folder
+            foreach (var dotNetFolder in Directory.GetDirectories(Path.Combine(version, "bin"), "NETFX*"))
+            {
+                string peVerify = Path.Combine(dotNetFolder, "PEVerify.exe");
+
+                if(File.Exists(peVerify))
+                {
+                    return peVerify;
+                }
+            }
+        }
+
+        throw new FileNotFoundException("Could not find PEVerify.exe");
     }
+
     static string TrimLineNumbers(string foo)
     {
         return Regex.Replace(foo, @"0x.*]", "");
