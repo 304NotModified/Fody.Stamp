@@ -98,8 +98,15 @@
     <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
     <Compile Include="PeImage\SubStream.cs" />
     <Compile Include="PeImage\SubSystemType.cs" />
+    <Compile Include="VersionResources\BinaryReaderExtensions.cs" />
+    <Compile Include="VersionResources\StringTable.cs" />
     <Compile Include="VersionResources\VersionDataType.cs" />
     <Compile Include="VersionResources\VersionHeader.cs" />
+    <Compile Include="VersionResources\VersionInfo.cs" />
+    <Compile Include="VersionResources\VersionResource.cs" />
+    <Compile Include="VersionResources\VersionResourceFormatException.cs" />
+    <Compile Include="VersionResources\VersionResourceReader.cs" />
+    <Compile Include="VersionResources\VersionResourceWriter.cs" />
     <Compile Include="VersionResources\VFT.cs" />
     <Compile Include="VersionResources\VFT2.cs" />
     <Compile Include="VersionResources\VOS.cs" />
