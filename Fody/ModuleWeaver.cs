@@ -6,6 +6,8 @@ using System.Xml.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
 using Version = System.Version;
+using Fody.PeImage;
+using Fody.VersionResources;
 
 public class ModuleWeaver
 {
@@ -14,7 +16,7 @@ public class ModuleWeaver
     public Action<string> LogWarning { get; set; }
     public ModuleDefinition ModuleDefinition { get; set; }
     public string SolutionDirectoryPath { get; set; }
-	public string ProjectDirectoryPath { get; set; }
+    public string ProjectDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
     static bool isPathSet;
@@ -171,37 +173,49 @@ public class ModuleWeaver
         {
             return;
         }
-        var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = $"\"{AssemblyFilePath}\" /pv \"{assemblyInfoVersion}\" /high {assemblyVersion}";
-        LogInfo($"Patching version using: {verPatchPath} {arguments}");
-        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = verPatchPath,
-                            Arguments = arguments,
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            WorkingDirectory = Path.GetTempPath()
-                        };
-        using (var process = Process.Start(startInfo))
-        {
-            var waitTimeoutInMilliseconds = GetVerPatchWaitTimeout().GetValueOrDefault(1000);
-            LogInfo($"Waiting {waitTimeoutInMilliseconds} ms while verpatch.exe is processing assembly");
-            if (!process.WaitForExit(waitTimeoutInMilliseconds))
-            {
-                var timeoutMessage = $"Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {verPatchPath} {arguments}";
-                throw new WeavingException(timeoutMessage);
-            }
 
-            if (process.ExitCode == 0)
+        try
+        {
+            using (FileStream fileStream = File.Open(AssemblyFilePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                return;
+                PeImage peReader = new PeImage(fileStream);
+                peReader.ReadHeader();
+                var checksum = peReader.CalculateCheckSum();
+
+                var versionStream = peReader.GetVersionResourceStream();
+
+                var reader = new VersionResourceReader(versionStream);
+                var versions = reader.Read();
+
+                var fixedFileInfo = versions.FixedFileInfo.Value;
+                fixedFileInfo.FileVersion = this.assemblyVersion;
+                fixedFileInfo.ProductVersion = this.assemblyVersion;
+                versions.FixedFileInfo = fixedFileInfo;
+
+                foreach (var stringTable in versions.StringFileInfo)
+                {
+                    if (stringTable.Values.ContainsKey("FileVersion"))
+                    {
+                        stringTable.Values["FileVersion"] = this.assemblyVersion.ToString();
+                    }
+
+                    if (stringTable.Values.ContainsKey("ProductVersion"))
+                    {
+                        stringTable.Values["ProductVersion"] = this.assemblyInfoVersion;
+                    }
+                }
+
+                versionStream.Position = 0;
+                VersionResourceWriter writer = new VersionResourceWriter(versionStream);
+                writer.Write(versions);
+                peReader.SetVersionResourceStream(versionStream);
+
+                peReader.WriteCheckSum();
             }
-            var output = process.StandardOutput.ReadToEnd();
-            var error = process.StandardError.ReadToEnd();
-            var message = $"Failed to apply product version to Win32 resources.\r\nOutput: {output}\r\nError: {error}";
-            throw new WeavingException(message);
+        }
+        catch (Exception ex)
+        {
+            throw new WeavingException($"Failed to update the assembly information. {ex.Message}");
         }
     }
 }

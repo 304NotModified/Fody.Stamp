@@ -131,7 +131,7 @@ namespace Fody.PeImage
             var checksum = this.CalculateCheckSum();
 
             using (SubStream stream = new SubStream(this.Stream, this.checksumOffset, 4, leaveParentOpen: true))
-            using (BinaryWriter writer = new BinaryWriter(this.Stream, Encoding.Unicode))
+            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.Unicode))
             {
                 writer.Write(checksum);
             }
@@ -155,7 +155,7 @@ namespace Fody.PeImage
             this.Stream.Position = 0;
 
             using (SubStream stream = new SubStream(this.Stream, 0, this.Stream.Length, leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(this.Stream, Encoding.Unicode))
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.Unicode))
             {
                 while (this.Stream.Position < this.Stream.Length)
                 {

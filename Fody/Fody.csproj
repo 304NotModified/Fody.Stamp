@@ -124,14 +124,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Lib\Verpatch\verpatch-ReadMe.txt">
-      <Link>verpatch-ReadMe.txt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Lib\Verpatch\verpatch.exe">
-      <Link>verpatch.exe</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="NugetAssets\Fody_ToBeDeleted.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -146,7 +138,6 @@
       <Output TaskParameter="Include" ItemName="amd64" />
     </CreateItem>
     <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
-    <Copy SourceFiles="$(SolutionDir)Lib\Verpatch\verpatch.exe" DestinationFolder="$(SolutionDir)NuGetBuild\" />
     <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
       <Output TaskParameter="Include" ItemName="x86" />
     </CreateItem>
