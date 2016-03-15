@@ -73,6 +73,24 @@
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
+    <Compile Include="PeImage\DllCharacteristicsType.cs" />
+    <Compile Include="PeImage\IImageOptionalHeader.cs" />
+    <Compile Include="PeImage\IMAGE_DATA_DIRECTORY.cs" />
+    <Compile Include="PeImage\IMAGE_DOS_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_CHARACTERISTICS.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_FILE_MACHINE.cs" />
+    <Compile Include="PeImage\IMAGE_NT_HEADERS.cs" />
+    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_32.cs" />
+    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_64.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DATA_ENTRY.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY.cs" />
+    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY_ENTRY.cs" />
+    <Compile Include="PeImage\IMAGE_SECTION_HEADER.cs" />
+    <Compile Include="PeImage\IMAGE_SECTION_HEADER_CHARACTERISTICS.cs" />
+    <Compile Include="PeImage\MagicType.cs" />
+    <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
+    <Compile Include="PeImage\SubSystemType.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
