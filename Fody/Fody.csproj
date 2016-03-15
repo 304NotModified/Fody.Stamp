@@ -73,7 +73,10 @@
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
+    <Compile Include="PeImage\BinaryReaderExtensions.cs" />
+    <Compile Include="PeImage\BinaryWriterExtensions.cs" />
     <Compile Include="PeImage\DllCharacteristicsType.cs" />
+    <Compile Include="PeImage\Helpers.cs" />
     <Compile Include="PeImage\IImageOptionalHeader.cs" />
     <Compile Include="PeImage\IMAGE_DATA_DIRECTORY.cs" />
     <Compile Include="PeImage\IMAGE_DOS_HEADER.cs" />
@@ -89,7 +92,11 @@
     <Compile Include="PeImage\IMAGE_SECTION_HEADER.cs" />
     <Compile Include="PeImage\IMAGE_SECTION_HEADER_CHARACTERISTICS.cs" />
     <Compile Include="PeImage\MagicType.cs" />
+    <Compile Include="PeImage\PeFormatException.cs" />
+    <Compile Include="PeImage\PeImage.cs" />
+    <Compile Include="PeImage\ResourceDirectory.cs" />
     <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
+    <Compile Include="PeImage\SubStream.cs" />
     <Compile Include="PeImage\SubSystemType.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
