@@ -133,21 +133,21 @@
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" />
     <MakeDir Directories="$(SolutionDir)NuGetBuild" />
-    <Exec Command="&quot;$(SolutionDir)Tools\ilmerge.exe&quot; /out:&quot;$(SolutionDir)NuGetBuild\Stamp.Fody.dll&quot; &quot;$(TargetDir)Stamp.Fody.dll&quot; &quot;$(TargetDir)LibGit2Sharp.dll&quot;  /target:library /targetplatform:v4" />
-    <CreateItem Include="$(TargetDir)\NativeBinaries\amd64\*.dll">
-      <Output TaskParameter="Include" ItemName="amd64" />
+    <Copy 
+      SourceFiles="$(TargetDir)Stamp.Fody.dll;$(TargetDir)LibGit2Sharp.dll;$(TargetDir)LibGit2Sharp.dll.config"
+      DestinationFolder="$(SolutionDir)NuGetBuild\"/>
+    <CreateItem Include="$(TargetDir)\NativeBinaries\**\*.*">
+      <Output TaskParameter="Include" ItemName="NativeBinaries" />
     </CreateItem>
-    <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
-    <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
-      <Output TaskParameter="Include" ItemName="x86" />
-    </CreateItem>
-    <Copy SourceFiles="@(x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
+    <Copy SourceFiles="@(NativeBinaries)"
+          DestinationFiles="@(NativeBinaries->'$(SolutionDir)NuGetBuild\NativeBinaries\%(RecursiveDir)%(FileName)%(Extension)')"/>
     <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\install.ps1" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\uninstall.ps1" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\Stamp.Fody.nuspec" DestinationFolder="$(SolutionDir)NuGetBuild" />
     <PepitaPackage.CreatePackageTask NuGetBuildDirectory="$(SolutionDir)NuGetBuild" MetadataAssembly="$(TargetDir)Stamp.Fody.dll" />
   </Target>
+  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.86\build\LibGit2Sharp.NativeBinaries.props"/>
   <Import Project="..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets" Condition="Exists('..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

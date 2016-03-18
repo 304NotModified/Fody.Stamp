@@ -8,6 +8,7 @@ using Mono.Cecil;
 using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
+using System.Reflection;
 
 public class ModuleWeaver
 {
@@ -19,11 +20,47 @@ public class ModuleWeaver
     public string ProjectDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
-    static bool isPathSet;
     readonly FormatStringTokenResolver formatStringTokenResolver;
     string assemblyInfoVersion;
     Version assemblyVersion;
     bool dotGitDirExists;
+    static string stampDirectory = null;
+
+    /// <summary>
+    /// Initializes static members of the <see cref="ModuleWeaver"/> class. Makes sure
+    /// the LibGit2Sharp.dll library is loaded correctly.
+    /// </summary>
+    static ModuleWeaver()
+    {
+        // Load the LibGitSharp assembly directly. A path needs to be specified when this assembly
+        // is loaded to make sure the <dllmap> entries are loaded correctly on Mono (Linux/Mac OS support)
+        // We assume Stamp.Fody is installed as a NuGet package in packages/; we can get the path to 
+        // packages/ by loading any assembly that is loaded as a NuGet package, too.
+        // Because Stamp is loaded dynamically, we cannot just get the location of the Stamp assembly - that
+        // would be an empty value.
+        // Instead, get Mono.Cecil (part of the Fody package), which we know lives in /packages,
+        // and get the Stamp.Fody directory from there.
+        // See https://github.com/Fody/Stamp/pull/15 for the motivation for this approach.
+        //
+        // This applies only if the Stamp.Fody assembly is loaded dynamically; if it is loaded using
+        // a full path (e.g. when running Stamp.Fody's unit tests), this does not apply.
+        if (typeof(ModuleWeaver).Assembly.IsDynamic)
+        {
+            var stampPath = Path.GetDirectoryName(typeof(NativeType).Assembly.Location);
+
+            // Stamp.Fody uses 3-digit version numbers
+            var version = typeof(ModuleWeaver).Assembly.GetName().Version.ToString(3);
+
+            stampDirectory = Path.Combine(Path.GetDirectoryName(stampPath), $"Stamp.Fody.{version}");
+            var libGitPath = Path.Combine(stampDirectory, "LibGit2Sharp.dll");
+
+            Assembly.LoadFrom(libGitPath);
+        }
+        else
+        {
+            stampDirectory = Path.GetDirectoryName(typeof(ModuleWeaver).Assembly.Location);
+        }
+    }
 
     public ModuleWeaver()
     {
@@ -34,16 +71,20 @@ public class ModuleWeaver
 
     public void Execute()
     {
-        SetSearchPath();
+        // When the native assemblies are loaded, the current directory *must* be set to the
+        // directory of the Stamp.Fody assembly, because of some limitations on how Mono
+        // handles the dllmap entries.
+        // We set CurrentDirectory back to its original valuat the end of this script.
+        var currentDirectory = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = stampDirectory;
 
         var config = new Configuration(Config);
-
         LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
 
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
+        var gitDir = Repository.Discover(config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath);
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
@@ -68,7 +109,7 @@ public class ModuleWeaver
             var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             if (customAttribute != null)
             {
-                assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
+                assemblyInfoVersion = (string)customAttribute.ConstructorArguments[0].Value;
                 assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
@@ -85,6 +126,8 @@ public class ModuleWeaver
                 customAttributes.Add(customAttribute);
             }
         }
+
+        Environment.CurrentDirectory = currentDirectory;
     }
 
     void VerifyStartsWithVersion(string versionString)
@@ -113,28 +156,6 @@ public class ModuleWeaver
         }
     }
 
-    void SetSearchPath()
-    {
-        if (isPathSet)
-        {
-            return;
-        }
-        isPathSet = true;
-        var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture());
-        var existingPath = Environment.GetEnvironmentVariable("PATH");
-        var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
-        Environment.SetEnvironmentVariable("PATH", newPath);
-    }
-
-    static string GetProcessorArchitecture()
-    {
-        if (Environment.Is64BitProcess)
-        {
-            return "amd64";
-        }
-        return "x86";
-    }
-
     TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
@@ -145,26 +166,6 @@ public class ModuleWeaver
         }
         var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
-    }
-
-    int? GetVerPatchWaitTimeout()
-    {
-        if (Config == null)
-        {
-            return null;
-        }
-        var xAttributes = Config.Attributes();
-        var timeoutSetting = xAttributes.FirstOrDefault(attr => attr.Name.LocalName == "VerPatchWaitTimeoutInMilliseconds");
-        if (timeoutSetting == null)
-        {
-            return null;
-        }
-        int timeoutInMilliseconds;
-        if (int.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
-        {
-            return timeoutInMilliseconds;
-        }
-        return null;
     }
 
     public void AfterWeaving()
