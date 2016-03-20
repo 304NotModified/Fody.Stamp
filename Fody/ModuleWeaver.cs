@@ -181,7 +181,6 @@ public class ModuleWeaver
             {
                 PeImage peReader = new PeImage(fileStream);
                 peReader.ReadHeader();
-                var checksum = peReader.CalculateCheckSum();
 
                 var versionStream = peReader.GetVersionResourceStream();
 
