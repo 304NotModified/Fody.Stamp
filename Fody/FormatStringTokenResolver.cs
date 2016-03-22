@@ -28,7 +28,7 @@ public class FormatStringTokenResolver
 
         template = template.Replace("%githash%", branch.Tip.Sha);
         template = template.Replace("%shorthash%", branch.Tip.Sha.Substring(0, 8));
-        template = template.Replace("%branch%", branch.FriendlyName);
+        template = template.Replace("%branch%", branch.Name);
         template = template.Replace("%haschanges%", repo.IsClean() ? "" : changestring);
 
         template = template.Replace("%user%", FormatUserName());
