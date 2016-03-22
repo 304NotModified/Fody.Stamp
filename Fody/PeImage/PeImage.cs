@@ -115,7 +115,6 @@ namespace Fody.PeImage
             var directoriesOffset = this.optionalHeaderOffset + optionalHeaderSize - directoriesSize;
 
             var sectionHeaderOffset = directoriesOffset + directoriesSize;
-            var sectionHeaderSize = ntHeader.FileHeader.NumberOfSections * Marshal.SizeOf(typeof(IMAGE_SECTION_HEADER));
 
             this.directories = this.ReadStructArray<IMAGE_DATA_DIRECTORY>(directoriesOffset, (int)optionalHeader.NumberOfRvaAndSizes);
             this.sections = this.ReadStructArray<IMAGE_SECTION_HEADER>(sectionHeaderOffset, ntHeader.FileHeader.NumberOfSections);
