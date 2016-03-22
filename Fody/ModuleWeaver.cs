@@ -44,8 +44,9 @@ public class ModuleWeaver
         //
         // This applies only if the Stamp.Fody assembly is loaded dynamically; if it is loaded using
         // a full path (e.g. when running Stamp.Fody's unit tests), this does not apply.
-        if (typeof(ModuleWeaver).Assembly.IsDynamic)
-        {
+		if (string.IsNullOrEmpty(typeof(ModuleWeaver).Assembly.Location))
+		{
+			Console.WriteLine($"Dynamic assembly - Getting directory of {typeof(NativeType).Assembly.Location}");
             var stampPath = Path.GetDirectoryName(typeof(NativeType).Assembly.Location);
 
             // Stamp.Fody uses 3-digit version numbers
@@ -58,6 +59,7 @@ public class ModuleWeaver
         }
         else
         {
+			Console.WriteLine($"Non dynamic assembly - Getting directory of {typeof(ModuleWeaver).Assembly.Location}"); 
             stampDirectory = Path.GetDirectoryName(typeof(ModuleWeaver).Assembly.Location);
         }
     }
