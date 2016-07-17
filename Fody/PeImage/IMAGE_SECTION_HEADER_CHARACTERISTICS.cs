@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +20,7 @@
 // THE SOFTWARE.
 
 using System;
+// ReSharper disable IdentifierTypo
 
 namespace Fody.PeImage
 {
@@ -46,7 +48,7 @@ namespace Fody.PeImage
         TypeGroup = 0x00000004,
 
         /// <summary>
-        /// The section should not be padded to the next boundary. This flag is obsolete and is replaced by <see cref="IMAGE_SCN_ALIGN_1BYTES"/>.
+        /// The section should not be padded to the next boundary. This flag is obsolete and is replaced by IMAGE_SCN_ALIGN_1BYTES.
         /// This is valid only for object files.
         /// </summary>
         TypeNoPadded = 0x00000008,

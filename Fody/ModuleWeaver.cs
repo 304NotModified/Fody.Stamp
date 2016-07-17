@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -176,11 +175,11 @@ public class ModuleWeaver
 
         try
         {
-            using (FileStream fileStream = File.Open(AssemblyFilePath, FileMode.Open, FileAccess.ReadWrite))
+            using (var fileStream = File.Open(AssemblyFilePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                PeImage peReader = new PeImage(fileStream);
+                var peReader = new PeImage(fileStream);
                 peReader.ReadHeader();
-                var checksum = peReader.CalculateCheckSum();
+                peReader.CalculateCheckSum();
 
                 var versionStream = peReader.GetVersionResourceStream();
 
@@ -188,25 +187,25 @@ public class ModuleWeaver
                 var versions = reader.Read();
 
                 var fixedFileInfo = versions.FixedFileInfo.Value;
-                fixedFileInfo.FileVersion = this.assemblyVersion;
-                fixedFileInfo.ProductVersion = this.assemblyVersion;
+                fixedFileInfo.FileVersion = assemblyVersion;
+                fixedFileInfo.ProductVersion = assemblyVersion;
                 versions.FixedFileInfo = fixedFileInfo;
 
                 foreach (var stringTable in versions.StringFileInfo)
                 {
                     if (stringTable.Values.ContainsKey("FileVersion"))
                     {
-                        stringTable.Values["FileVersion"] = this.assemblyVersion.ToString();
+                        stringTable.Values["FileVersion"] = assemblyVersion.ToString();
                     }
 
                     if (stringTable.Values.ContainsKey("ProductVersion"))
                     {
-                        stringTable.Values["ProductVersion"] = this.assemblyInfoVersion;
+                        stringTable.Values["ProductVersion"] = assemblyInfoVersion;
                     }
                 }
 
                 versionStream.Position = 0;
-                VersionResourceWriter writer = new VersionResourceWriter(versionStream);
+                var writer = new VersionResourceWriter(versionStream);
                 writer.Write(versions);
                 peReader.SetVersionResourceStream(versionStream);
 

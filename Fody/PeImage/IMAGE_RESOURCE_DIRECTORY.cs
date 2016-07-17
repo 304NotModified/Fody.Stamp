@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +64,7 @@ namespace Fody.PeImage
         /// </summary>
         public Version Version
         {
-            get { return new Version(this.MajorVersion, this.MinorVersion); }
+            get { return new Version(MajorVersion, MinorVersion); }
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Fody.PeImage
         /// </summary>
         public bool ContainsEntries
         {
-            get { return this.NumberOfEntries > 0; }
+            get { return NumberOfEntries > 0; }
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Fody.PeImage
         /// </summary>
         public ushort NumberOfEntries
         {
-            get { return checked((ushort)(this.NumberOfIdEntries + this.NumberOfNamedEntries)); }
+            get { return checked((ushort)(NumberOfIdEntries + NumberOfNamedEntries)); }
         }
     }
 }

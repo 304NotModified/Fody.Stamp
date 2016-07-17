@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -49,10 +50,10 @@ namespace Fody.PeImage
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            int size = Marshal.SizeOf(typeof(T));
-            byte[] bytes = new byte[size];
+            var size = Marshal.SizeOf(typeof(T));
+            var bytes = new byte[size];
 
-            IntPtr ptr = Marshal.AllocHGlobal(size);
+            var ptr = Marshal.AllocHGlobal(size);
             Marshal.StructureToPtr(value, ptr, true);
             Marshal.Copy(ptr, bytes, 0, size);
             Marshal.FreeHGlobal(ptr);
@@ -81,7 +82,7 @@ namespace Fody.PeImage
                 throw new ArgumentNullException(nameof(value));
             }
 
-            byte[] data = Encoding.Unicode.GetBytes(value);
+            var data = Encoding.Unicode.GetBytes(value);
             writer.Write(data);
 
             if (value.Length == 0 || value[value.Length - 1] != '\0')
@@ -108,7 +109,7 @@ namespace Fody.PeImage
 
             var padding = actual - current;
 
-            for (int i = 0; i < padding; i++)
+            for (var i = 0; i < padding; i++)
             {
                 writer.Write((byte)0);
             }

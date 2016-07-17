@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +55,7 @@ namespace Fody.PeImage
         /// </summary>
         public bool IsNameString
         {
-            get { return (this.NameOffset & 0x80000000) > 0; }
+            get { return (NameOffset & 0x80000000) > 0; }
         }
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace Fody.PeImage
         /// </summary>
         public uint NameAddress
         {
-            get { return this.NameOffset & 0x7FFFFFFF; }
+            get { return NameOffset & 0x7FFFFFFF; }
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Fody.PeImage
         /// </summary>
         public RESOURCE_DIRECTORY_TYPE NameType
         {
-            get { return this.IsNameString ? RESOURCE_DIRECTORY_TYPE.Undefined : (RESOURCE_DIRECTORY_TYPE)this.NameAddress; }
+            get { return IsNameString ? RESOURCE_DIRECTORY_TYPE.Undefined : (RESOURCE_DIRECTORY_TYPE)NameAddress; }
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Fody.PeImage
         /// </summary>
         public bool IsDirectory
         {
-            get { return (this.OffsetToData & 0x80000000) > 0; }
+            get { return (OffsetToData & 0x80000000) > 0; }
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace Fody.PeImage
         /// </summary>
         public uint DirectoryAddress
         {
-            get { return this.OffsetToData & 0x7FFFFFFF; }
+            get { return OffsetToData & 0x7FFFFFFF; }
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Fody.PeImage
         /// </summary>
         public bool IsDataEntry
         {
-            get { return !this.IsNameString && !this.IsDirectory; }
+            get { return !IsNameString && !IsDirectory; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿ // ReSharper disable once CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// ReSharper disable CommentTypo
 namespace Fody.PeImage
 {
     /// <summary>
@@ -84,6 +86,7 @@ namespace Fody.PeImage
         /// <summary>
         /// Xbox system.
         /// </summary>
+        // ReSharper disable once IdentifierTypo
         IMAGE_SUBSYSTEM_XBOX = 14,
 
         /// <summary>

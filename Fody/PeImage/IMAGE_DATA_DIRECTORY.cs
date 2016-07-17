@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +42,7 @@ namespace Fody.PeImage
 
         public override string ToString()
         {
-            return $"Address: {this.VirtualAddress}, Size: {this.Size}";
+            return $"Address: {VirtualAddress}, Size: {Size}";
         }
     }
 }

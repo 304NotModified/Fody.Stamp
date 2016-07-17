@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +45,7 @@ namespace Fody.VersionResources
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            this.Stream = stream;
+            Stream = stream;
         }
 
         /// <summary>
@@ -69,16 +70,16 @@ namespace Fody.VersionResources
                 throw new ArgumentNullException(nameof(resource));
             }
 
-            if (this.Stream.Length < resource.Size)
+            if (Stream.Length < resource.Size)
             {
-                this.Stream.SetLength(resource.Size);
+                Stream.SetLength(resource.Size);
             }
 
-            using (SubStream stream = new SubStream(this.Stream, 0, this.Stream.Length, leaveParentOpen: true))
-            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.Unicode))
+            using (var stream = new SubStream(Stream, 0, Stream.Length, leaveParentOpen: true))
+            using (var writer = new BinaryWriter(stream, Encoding.Unicode))
             {
                 // Write the version resource header
-                this.WriteHeader(
+                WriteHeader(
                     writer,
                     resource.Size,
                     resource.FixedFileInfo == null ? 0 : Marshal.SizeOf(typeof(VS_FIXEDFILEINFO)),
@@ -94,23 +95,23 @@ namespace Fody.VersionResources
 
                 if (resource.VarFileInfo != null)
                 {
-                    this.WriteHeader(writer, resource.VarFileInfoSize, 0, VersionDataType.Text, "VarFileInfo");
+                    WriteHeader(writer, resource.VarFileInfoSize, 0, VersionDataType.Text, "VarFileInfo");
 
-                    this.WriteVarFileInfo(writer, resource);
+                    WriteVarFileInfo(writer, resource);
                 }
 
                 if (resource.StringFileInfo != null)
                 {
-                    this.WriteHeader(writer, resource.StringFileInfoSize, 0, VersionDataType.Text, "StringFileInfo");
+                    WriteHeader(writer, resource.StringFileInfoSize, 0, VersionDataType.Text, "StringFileInfo");
 
-                    this.WriteStringFileInfo(writer, resource);
+                    WriteStringFileInfo(writer, resource);
                 }
             }
         }
 
         private void WriteVarFileInfo(BinaryWriter writer, VersionResource resource)
         {
-            this.WriteHeader(writer, resource.VarSize, resource.VarFileInfo.Count * 4, VersionDataType.Binary, "Translation");
+            WriteHeader(writer, resource.VarSize, resource.VarFileInfo.Count * 4, VersionDataType.Binary, "Translation");
 
             foreach (var value in resource.VarFileInfo)
             {
@@ -126,12 +127,12 @@ namespace Fody.VersionResources
         {
             foreach (var value in resource.StringFileInfo)
             {
-                ushort languageIdentifier = value.Language;
-                ushort codePage = (ushort)value.Encoding.CodePage;
+                var languageIdentifier = value.Language;
+                var codePage = (ushort)value.Encoding.CodePage;
 
-                uint key = (uint)languageIdentifier << 4 | codePage;
+                var key = (uint)languageIdentifier << 4 | codePage;
 
-                this.WriteHeader(writer, value.Size, 0, VersionDataType.Text, key.ToString("x8"));
+                WriteHeader(writer, value.Size, 0, VersionDataType.Text, key.ToString("x8"));
 
                 foreach (var pair in value.Values)
                 {
@@ -144,7 +145,7 @@ namespace Fody.VersionResources
                     length += valueLength;
                     length = Helpers.Align(length);
 
-                    this.WriteHeader(writer, length, valueLength / sizeof(short), VersionDataType.Text, pair.Key);
+                    WriteHeader(writer, length, valueLength / sizeof(short), VersionDataType.Text, pair.Key);
                     writer.WriteUnicodeString(pair.Value);
                     writer.Align();
                 }
@@ -153,7 +154,7 @@ namespace Fody.VersionResources
 
         private void WriteHeader(BinaryWriter writer, long length, long valueLength, VersionDataType binary, string key)
         {
-            VersionHeader header = new VersionHeader()
+            var header = new VersionHeader
             {
                 Length = (ushort)length,
                 ValueLength = (ushort)valueLength,

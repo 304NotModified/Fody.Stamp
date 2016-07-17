@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -51,12 +52,12 @@ namespace Fody.PeImage
         /// </returns>
         public IMAGE_RESOURCE_DIRECTORY_ENTRY? GetIdEntry(RESOURCE_DIRECTORY_TYPE id)
         {
-            if (!this.IdEntries.Any(e => e.NameType == id))
+            if (!IdEntries.Any(e => e.NameType == id))
             {
                 return null;
             }
 
-            return this.IdEntries.Single(e => e.NameType == id);
+            return IdEntries.Single(e => e.NameType == id);
         }
 
         /// <summary>
@@ -70,12 +71,12 @@ namespace Fody.PeImage
         /// </returns>
         public IMAGE_RESOURCE_DIRECTORY_ENTRY? GetIdEntry(uint id)
         {
-            if (!this.IdEntries.Any(e => (uint)e.NameType == id))
+            if (!IdEntries.Any(e => (uint)e.NameType == id))
             {
                 return null;
             }
 
-            return this.IdEntries.Single(e => (uint)e.NameType == id);
+            return IdEntries.Single(e => (uint)e.NameType == id);
         }
     }
 }

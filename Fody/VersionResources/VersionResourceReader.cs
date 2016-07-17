@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +46,7 @@ namespace Fody.VersionResources
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            this.Stream = stream;
+            Stream = stream;
         }
 
         /// <summary>
@@ -65,17 +66,17 @@ namespace Fody.VersionResources
         /// </returns>
         public VersionResource Read()
         {
-            this.Stream.Position = 0;
+            Stream.Position = 0;
 
-            VersionResource value = new VersionResource();
+            var value = new VersionResource();
 
-            using (SubStream stream = new SubStream(this.Stream, 0, this.Stream.Length, leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream, Encoding.Default))
+            using (var stream = new SubStream(Stream, 0, Stream.Length, leaveParentOpen: true))
+            using (var reader = new BinaryReader(stream, Encoding.Default))
             {
-                long offset = this.Stream.Position;
+                var offset = Stream.Position;
 
                 var versionInfo = reader.ReadVersionInfo();
-                long end = offset + versionInfo.Header.Length;
+                var end = offset + versionInfo.Header.Length;
 
                 // The root element MUST be a "VS_VERSION_INFO" element of binary type.
                 // https://msdn.microsoft.com/en-us/library/windows/desktop/ms647001(v=vs.85).aspx
@@ -100,12 +101,12 @@ namespace Fody.VersionResources
                 }
 
                 // Read the children: At most one StringFileInfo and at most one VarFileInfo
-                while (this.Stream.Position < end)
+                while (Stream.Position < end)
                 {
-                    var childOffset = this.Stream.Position;
+                    var childOffset = Stream.Position;
 
                     var childInfo = reader.ReadVersionInfo();
-                    long childEnd = childOffset + childInfo.Header.Length;
+                    var childEnd = childOffset + childInfo.Header.Length;
 
                     switch (childInfo.Key)
                     {
@@ -115,7 +116,7 @@ namespace Fody.VersionResources
                                 throw new VersionResourceFormatException();
                             }
 
-                            value.VarFileInfo = this.ReadVarFileInfo(reader);
+                            value.VarFileInfo = ReadVarFileInfo(reader);
                             break;
 
                         case "StringFileInfo":
@@ -124,7 +125,7 @@ namespace Fody.VersionResources
                                 throw new VersionResourceFormatException();
                             }
 
-                            value.StringFileInfo = this.ReadStringFileInfo(reader, childEnd);
+                            value.StringFileInfo = ReadStringFileInfo(reader, childEnd);
                             break;
                     }
                 }
@@ -143,15 +144,15 @@ namespace Fody.VersionResources
                 throw new VersionResourceFormatException();
             }
 
-            int count = versionInfo.Header.ValueLength / sizeof(uint);
+            var count = versionInfo.Header.ValueLength / sizeof(uint);
 
             var value = new Dictionary<ushort, Encoding>(count);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var pair = reader.ReadUInt32();
                 var codePage = Helpers.HiWord(pair);
-                var encoding = Encoding.GetEncoding((int)codePage);
+                var encoding = Encoding.GetEncoding(codePage);
 
                 var languageIdentifier = Helpers.LoWord(pair);
 
@@ -165,19 +166,16 @@ namespace Fody.VersionResources
         {
             var value = new List<StringTable>();
 
-            // https://msdn.microsoft.com/en-us/library/windows/desktop/ms646989(v=vs.85).aspx
-            var stream = reader.BaseStream;
-
             // Contains one or more string tables (one for each language),
             // each string table contains one or more strings (key/value pairs mapping
             // keys to strings for that language)
-            while (this.Stream.Position < end)
+            while (Stream.Position < end)
             {
                 // Read the string table
                 var stringTable = new StringTable();
                 value.Add(stringTable);
 
-                var start = this.Stream.Position;
+                var start = Stream.Position;
                 var versionInfo = reader.ReadVersionInfo();
 
                 if (versionInfo.Header.Type != VersionDataType.Text)
@@ -187,13 +185,13 @@ namespace Fody.VersionResources
 
                 var pair = uint.Parse(versionInfo.Key, NumberStyles.AllowHexSpecifier);
                 var codePage = Helpers.LoWord(pair);
-                var encoding = Encoding.GetEncoding((int)codePage);
+                var encoding = Encoding.GetEncoding(codePage);
 
                 var languageIdentifier = Helpers.HiWord(pair);
                 stringTable.Language = languageIdentifier;
                 stringTable.Encoding = encoding;
 
-                while (this.Stream.Position < start + versionInfo.Header.Length)
+                while (Stream.Position < start + versionInfo.Header.Length)
                 {
                     // Read the string data
                     var stringInfo = reader.ReadVersionInfo();

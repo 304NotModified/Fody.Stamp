@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -221,7 +222,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.NumberOfRvaAndSizes;
+                return NumberOfRvaAndSizes;
             }
         }
 
@@ -230,7 +231,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.Magic;
+                return Magic;
             }
         }
 
@@ -239,7 +240,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.ImageBase;
+                return ImageBase;
             }
         }
 
@@ -248,7 +249,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.CheckSum;
+                return CheckSum;
             }
         }
 
@@ -257,7 +258,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return (int)Marshal.OffsetOf(typeof(IMAGE_OPTIONAL_HEADER_64), nameof(this.CheckSum));
+                return (int)Marshal.OffsetOf(typeof(IMAGE_OPTIONAL_HEADER_64), nameof(CheckSum));
             }
         }
     }

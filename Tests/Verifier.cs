@@ -14,9 +14,13 @@ public static class Verifier
         Assert.AreEqual(TrimLineNumbers(before), TrimLineNumbers(after), message);
     }
 
-    public static string Validate(string assemblyPath2)
+    static string Validate(string assemblyPath2)
     {
-        var exePath = GetPathToPEVerify();
+        var exePath = GetPathToPeVerify();
+        if (!File.Exists(exePath))
+        {
+            return string.Empty;
+        }
         var process = Process.Start(new ProcessStartInfo(exePath, "\"" + assemblyPath2 + "\"")
         {
             RedirectStandardOutput = true,
@@ -28,30 +32,15 @@ public static class Verifier
         return process.StandardOutput.ReadToEnd().Trim().Replace(assemblyPath2, "");
     }
 
-    static string GetPathToPEVerify()
+    static string GetPathToPeVerify()
     {
-        var windowsSdkFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows");
+        var exePath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\PEVerify.exe");
 
-        if (!Directory.Exists(windowsSdkFolder))
+        if (!File.Exists(exePath))
         {
-            throw new DirectoryNotFoundException("Could not find the Windows SDK directory");
+            exePath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Microsoft SDKs\Windows\v8.0A\Bin\NETFX 4.0 Tools\PEVerify.exe");
         }
-
-        foreach (var version in Directory.GetDirectories(windowsSdkFolder))
-        {
-            // Find the .NETFX tools folder
-            foreach (var dotNetFolder in Directory.GetDirectories(Path.Combine(version, "bin"), "NETFX*"))
-            {
-                string peVerify = Path.Combine(dotNetFolder, "PEVerify.exe");
-
-                if(File.Exists(peVerify))
-                {
-                    return peVerify;
-                }
-            }
-        }
-
-        throw new FileNotFoundException("Could not find PEVerify.exe");
+        return exePath;
     }
 
     static string TrimLineNumbers(string foo)

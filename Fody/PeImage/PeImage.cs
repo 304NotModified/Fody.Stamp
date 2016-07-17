@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +28,8 @@ using System.Text;
 
 namespace Fody.PeImage
 {
+    using Fody.VersionResources;
+
     /// <summary>
     /// Reads Windows PE files
     /// </summary>
@@ -70,7 +73,7 @@ namespace Fody.PeImage
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            this.Stream = stream;
+            Stream = stream;
         }
 
         /// <summary>
@@ -87,7 +90,7 @@ namespace Fody.PeImage
         /// </summary>
         public void ReadHeader()
         {
-            var dosHeader = this.ReadStruct<IMAGE_DOS_HEADER>(0);
+            var dosHeader = ReadStruct<IMAGE_DOS_HEADER>(0);
 
             if (Encoding.ASCII.GetString(dosHeader.Magic) != "MZ")
             {
@@ -96,31 +99,30 @@ namespace Fody.PeImage
 
             // Skip the stub program and go to the NT headers
             // Read the NT header
-            var ntHeader = this.ReadStruct<IMAGE_NT_HEADERS>(dosHeader.Lfanew);
+            var ntHeader = ReadStruct<IMAGE_NT_HEADERS>(dosHeader.Lfanew);
 
             if (Encoding.ASCII.GetString(ntHeader.Signature) != "PE\0\0")
             {
                 throw new PeFormatException();
             }
 
-            this.optionalHeaderOffset = dosHeader.Lfanew + Marshal.SizeOf(typeof(IMAGE_NT_HEADERS));
+            optionalHeaderOffset = dosHeader.Lfanew + Marshal.SizeOf(typeof(IMAGE_NT_HEADERS));
             long optionalHeaderSize = ntHeader.FileHeader.SizeOfOptionalHeader;
 
             // The NT header is followed by the optional header.
-            var optionalHeader = this.ReadOptionalHeader(this.optionalHeaderOffset, optionalHeaderSize);
-            this.checksumOffset = this.optionalHeaderOffset + optionalHeader.CheckSumOffset;
+            var optionalHeader = ReadOptionalHeader(optionalHeaderOffset, optionalHeaderSize);
+            checksumOffset = optionalHeaderOffset + optionalHeader.CheckSumOffset;
 
             // The directories are considered part of the optional header.
             var directoriesSize = optionalHeader.NumberOfRvaAndSizes * Marshal.SizeOf(typeof(IMAGE_DATA_DIRECTORY));
-            var directoriesOffset = this.optionalHeaderOffset + optionalHeaderSize - directoriesSize;
+            var directoriesOffset = optionalHeaderOffset + optionalHeaderSize - directoriesSize;
 
             var sectionHeaderOffset = directoriesOffset + directoriesSize;
-            var sectionHeaderSize = ntHeader.FileHeader.NumberOfSections * Marshal.SizeOf(typeof(IMAGE_SECTION_HEADER));
 
-            this.directories = this.ReadStructArray<IMAGE_DATA_DIRECTORY>(directoriesOffset, (int)optionalHeader.NumberOfRvaAndSizes);
-            this.sections = this.ReadStructArray<IMAGE_SECTION_HEADER>(sectionHeaderOffset, ntHeader.FileHeader.NumberOfSections);
+            directories = ReadStructArray<IMAGE_DATA_DIRECTORY>(directoriesOffset, (int)optionalHeader.NumberOfRvaAndSizes);
+            sections = ReadStructArray<IMAGE_SECTION_HEADER>(sectionHeaderOffset, ntHeader.FileHeader.NumberOfSections);
 
-            this.headerRead = true;
+            headerRead = true;
         }
 
         /// <summary>
@@ -128,15 +130,15 @@ namespace Fody.PeImage
         /// </summary>
         public void WriteCheckSum()
         {
-            var checksum = this.CalculateCheckSum();
+            var checksum = CalculateCheckSum();
 
-            using (SubStream stream = new SubStream(this.Stream, this.checksumOffset, 4, leaveParentOpen: true))
-            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.Unicode))
+            using (var stream = new SubStream(Stream, checksumOffset, 4, leaveParentOpen: true))
+            using (var writer = new BinaryWriter(stream, Encoding.Unicode))
             {
                 writer.Write(checksum);
             }
 
-            this.Stream.Flush();
+            Stream.Flush();
         }
 
         /// <summary>
@@ -147,19 +149,19 @@ namespace Fody.PeImage
         /// </returns>
         public uint CalculateCheckSum()
         {
-            this.EnsureHeaderRead();
+            EnsureHeaderRead();
 
             ulong checksum = 0;
             var top = Math.Pow(2, 32);
 
-            this.Stream.Position = 0;
+            Stream.Position = 0;
 
-            using (SubStream stream = new SubStream(this.Stream, 0, this.Stream.Length, leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream, Encoding.Unicode))
+            using (var stream = new SubStream(Stream, 0, Stream.Length, leaveParentOpen: true))
+            using (var reader = new BinaryReader(stream, Encoding.Unicode))
             {
-                while (this.Stream.Position < this.Stream.Length)
+                while (Stream.Position < Stream.Length)
                 {
-                    if (this.Stream.Position == this.checksumOffset)
+                    if (Stream.Position == checksumOffset)
                     {
                         reader.ReadUInt32();
                         continue;
@@ -179,7 +181,7 @@ namespace Fody.PeImage
             checksum = checksum + (checksum >> 16);
             checksum = checksum & 0xffff;
 
-            checksum += (uint)this.Stream.Length;
+            checksum += (uint)Stream.Length;
             return (uint)checksum;
         }
 
@@ -191,19 +193,19 @@ namespace Fody.PeImage
         /// </returns>
         private long GetResourceEntryOffset()
         {
-            this.EnsureHeaderRead();
+            EnsureHeaderRead();
 
-            var resourceTable = this.directories[2];
+            var resourceTable = directories[2];
 
-            var offset = this.RvaToFileOffset(resourceTable.VirtualAddress);
-            var directory = this.ReadDirectory(offset);
+            var offset = RvaToFileOffset(resourceTable.VirtualAddress);
+            var directory = ReadDirectory(offset);
 
             // http://stackoverflow.com/questions/12396665/c-library-to-read-exe-version-from-linux
             var versionResource = directory.GetIdEntry(RESOURCE_DIRECTORY_TYPE.RT_VERSION);
-            var resourceSection = this.sections.Single(s => new string(s.Name) == ".rsrc\0\0\0");
+            var resourceSection = sections.Single(s => new string(s.Name) == ".rsrc\0\0\0");
 
-            offset = (long)resourceSection.PointerToRawData + (long)versionResource.Value.DirectoryAddress;
-            directory = this.ReadDirectory(offset);
+            offset = resourceSection.PointerToRawData + (long)versionResource.Value.DirectoryAddress;
+            directory = ReadDirectory(offset);
 
             // Should only contain one item
             if (directory.NamedEntries.Count > 0)
@@ -218,8 +220,8 @@ namespace Fody.PeImage
 
             var versionEntry = directory.GetIdEntry(1);
 
-            offset = (long)resourceSection.PointerToRawData + (long)versionEntry.Value.DirectoryAddress;
-            directory = this.ReadDirectory(offset);
+            offset = resourceSection.PointerToRawData + (long)versionEntry.Value.DirectoryAddress;
+            directory = ReadDirectory(offset);
 
             // Should only contain one item
             if (directory.NamedEntries.Count > 0)
@@ -233,7 +235,7 @@ namespace Fody.PeImage
             }
 
             // Get the data entry
-            offset = (long)resourceSection.PointerToRawData + (long)directory.IdEntries[0].DirectoryAddress;
+            offset = resourceSection.PointerToRawData + (long)directory.IdEntries[0].DirectoryAddress;
             return offset;
         }
 
@@ -245,14 +247,14 @@ namespace Fody.PeImage
         /// </param>
         public void SetVersionResourceStream(Stream stream)
         {
-            var offset = this.GetResourceEntryOffset();
-            var entry = this.ReadStruct<IMAGE_RESOURCE_DATA_ENTRY>(offset);
+            var offset = GetResourceEntryOffset();
+            var entry = ReadStruct<IMAGE_RESOURCE_DATA_ENTRY>(offset);
 
             entry.Size = (uint)stream.Length;
 
-            this.WriteStruct(offset, entry);
+            WriteStruct(offset, entry);
 
-            offset = this.RvaToFileOffset(entry.OffsetToData);
+            RvaToFileOffset(entry.OffsetToData);
         }
 
         /// <summary>
@@ -263,12 +265,12 @@ namespace Fody.PeImage
         /// </returns>
         public Stream GetVersionResourceStream()
         {
-            var offset = this.GetResourceEntryOffset();
-            var entry = this.ReadStruct<IMAGE_RESOURCE_DATA_ENTRY>(offset);
+            var offset = GetResourceEntryOffset();
+            var entry = ReadStruct<IMAGE_RESOURCE_DATA_ENTRY>(offset);
 
-            offset = this.RvaToFileOffset(entry.OffsetToData);
+            offset = RvaToFileOffset(entry.OffsetToData);
 
-            Stream resourceStream = new SubStream(this.Stream, offset, entry.Size, leaveParentOpen: true);
+            Stream resourceStream = new SubStream(Stream, offset, entry.Size, leaveParentOpen: true);
             return resourceStream;
         }
 
@@ -283,22 +285,22 @@ namespace Fody.PeImage
         /// </returns>
         private ResourceDirectory ReadDirectory(long offset)
         {
-            var resourceDirectory = this.ReadStruct<IMAGE_RESOURCE_DIRECTORY>(offset);
+            var resourceDirectory = ReadStruct<IMAGE_RESOURCE_DIRECTORY>(offset);
             var value = new ResourceDirectory();
 
             using (Stream stream = new SubStream(
-                this.Stream,
+                Stream,
                 offset + Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY)),
                 resourceDirectory.NumberOfEntries * Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY_ENTRY)),
                 leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (var reader = new BinaryReader(stream))
             {
-                for (int i = 0; i < resourceDirectory.NumberOfNamedEntries; i++)
+                for (var i = 0; i < resourceDirectory.NumberOfNamedEntries; i++)
                 {
                     value.NamedEntries.Add(reader.ReadStruct<IMAGE_RESOURCE_DIRECTORY_ENTRY>());
                 }
 
-                for (int i = 0; i < resourceDirectory.NumberOfIdEntries; i++)
+                for (var i = 0; i < resourceDirectory.NumberOfIdEntries; i++)
                 {
                     value.IdEntries.Add(reader.ReadStruct<IMAGE_RESOURCE_DIRECTORY_ENTRY>());
                 }
@@ -324,12 +326,12 @@ namespace Fody.PeImage
         /// </returns>
         private List<T> ReadStructArray<T>(long offset, int count)
         {
-            List<T> value = new List<T>(count);
+            var value = new List<T>(count);
 
-            using (Stream stream = new SubStream(this.Stream, offset, count * Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (Stream stream = new SubStream(Stream, offset, count * Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
+            using (var reader = new BinaryReader(stream))
             {
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     value.Add(reader.ReadStruct<T>());
                 }
@@ -352,8 +354,8 @@ namespace Fody.PeImage
         /// </returns>
         private T ReadStruct<T>(long offset)
         {
-            using (Stream stream = new SubStream(this.Stream, offset, Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (Stream stream = new SubStream(Stream, offset, Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
+            using (var reader = new BinaryReader(stream))
             {
                 return reader.ReadStruct<T>();
             }
@@ -373,8 +375,8 @@ namespace Fody.PeImage
         /// </param>
         private void WriteStruct<T>(long offset, T value)
         {
-            using (Stream stream = new SubStream(this.Stream, offset, Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
-            using (BinaryWriter writer = new BinaryWriter(stream))
+            using (Stream stream = new SubStream(Stream, offset, Marshal.SizeOf(typeof(T)), leaveParentOpen: true))
+            using (var writer = new BinaryWriter(stream))
             {
                 writer.WriteStruct(value);
             }
@@ -394,8 +396,8 @@ namespace Fody.PeImage
         /// </returns>
         private IImageOptionalHeader ReadOptionalHeader(long offset, long size)
         {
-            using (Stream stream = new SubStream(this.Stream, offset, size, leaveParentOpen: true))
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (Stream stream = new SubStream(Stream, offset, size, leaveParentOpen: true))
+            using (var reader = new BinaryReader(stream))
             {
                 // The NT header is followed by the optional header. There's a 32-bit
                 // and a 64-bit variant. The magic indicates which one we're dealing with
@@ -436,7 +438,7 @@ namespace Fody.PeImage
         /// </summary>
         private void EnsureHeaderRead()
         {
-            if (!this.headerRead)
+            if (!headerRead)
             {
                 throw new InvalidOperationException("You must first read the header by calling ReadHeader()");
             }
@@ -453,9 +455,9 @@ namespace Fody.PeImage
         /// </returns>
         private long RvaToFileOffset(long rva)
         {
-            this.EnsureHeaderRead();
+            EnsureHeaderRead();
 
-            var matches = this.sections.Where(s => rva >= s.VirtualAddress && rva < s.VirtualAddress + s.SizeOfRawData);
+            var matches = sections.Where(s => rva >= s.VirtualAddress && rva < s.VirtualAddress + s.SizeOfRawData);
 
             if (matches.Count() != 1)
             {

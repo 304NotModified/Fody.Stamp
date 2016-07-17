@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +68,7 @@ namespace Fody.VersionResources
         {
             get
             {
-                if (this.StringFileInfo == null)
+                if (StringFileInfo == null)
                 {
                     return 0;
                 }
@@ -76,7 +77,7 @@ namespace Fody.VersionResources
                 value += Encoding.Unicode.GetByteCount("StringFileInfo\0");
                 value = Helpers.Align(value);
 
-                value += this.StringFileInfo.Sum(v => v.Size);
+                value += StringFileInfo.Sum(v => v.Size);
 
                 return value;
             }
@@ -89,7 +90,7 @@ namespace Fody.VersionResources
         {
             get
             {
-                if (this.VarFileInfo == null)
+                if (VarFileInfo == null)
                 {
                     return 0;
                 }
@@ -98,7 +99,7 @@ namespace Fody.VersionResources
                 value += Encoding.Unicode.GetByteCount("VarFileInfo\0");
                 value = Helpers.Align(value);
 
-                value += this.VarSize;
+                value += VarSize;
 
                 return value;
             }
@@ -111,7 +112,7 @@ namespace Fody.VersionResources
         {
             get
             {
-                if (this.VarFileInfo == null)
+                if (VarFileInfo == null)
                 {
                     return 0;
                 }
@@ -120,7 +121,7 @@ namespace Fody.VersionResources
                 value += Encoding.Unicode.GetByteCount("Translation\0");
                 value = Helpers.Align(value);
 
-                value += this.VarFileInfo.Count * 4;
+                value += VarFileInfo.Count * 4;
 
                 return value;
             }
@@ -137,14 +138,14 @@ namespace Fody.VersionResources
                 value += Encoding.Unicode.GetByteCount("VS_VERSION_INFO\0");
                 value = Helpers.Align(value);
 
-                if (this.FixedFileInfo != null)
+                if (FixedFileInfo != null)
                 {
                     value += Marshal.SizeOf(typeof(VS_FIXEDFILEINFO));
                 }
 
                 value = Helpers.Align(value);
-                value += this.VarFileInfoSize;
-                value += this.StringFileInfoSize;
+                value += VarFileInfoSize;
+                value += StringFileInfoSize;
 
                 return value;
             }

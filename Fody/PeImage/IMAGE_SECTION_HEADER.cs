@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -51,14 +52,14 @@ namespace Fody.PeImage
 
         /// <summary>
         /// The size of the initialized data on disk, in bytes. This value must be a multiple of the FileAlignment member of the
-        /// <see cref="IMAGE_OPTIONAL_HEADER"/> structure. If this value is less than the <see cref="VirtualSize"/> member, the remainder
+        /// <see cref="IMAGE_OPTIONAL_HEADER_32"/> structure. If this value is less than the <see cref="VirtualSize"/> member, the remainder
         /// of the section is filled with zeroes. If the section contains only uninitialized data, the member is zero.
         /// </summary>
         public uint SizeOfRawData;
 
         /// <summary>
         /// A file pointer to the first page within the COFF file. This value must be a multiple of the FileAlignment member of the
-        /// <see cref="IMAGE_OPTIONAL_HEADER"/> structure. If a section contains only uninitialized data, set this member is zero.
+        /// <see cref="IMAGE_OPTIONAL_HEADER_32"/> structure. If a section contains only uninitialized data, set this member is zero.
         /// </summary>
         public uint PointerToRawData;
 
@@ -92,7 +93,7 @@ namespace Fody.PeImage
         /// </summary>
         public string Section
         {
-            get { return new string(this.Name.Take(this.Name.Count(c => c != '\0')).ToArray()); }
+            get { return new string(Name.Take(Name.Count(c => c != '\0')).ToArray()); }
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.Misc;
+                return Misc;
             }
         }
 
@@ -114,14 +115,14 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.Misc;
+                return Misc;
             }
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return this.Section;
+            return Section;
         }
     }
 }

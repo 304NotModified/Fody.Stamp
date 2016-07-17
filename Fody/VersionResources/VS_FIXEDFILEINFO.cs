@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +22,7 @@
 using Fody.PeImage;
 using System;
 using System.Runtime.InteropServices;
+// ReSharper disable IdentifierTypo
 
 namespace Fody.VersionResources
 {
@@ -108,7 +110,7 @@ namespace Fody.VersionResources
         /// </summary>
         public bool IsValid
         {
-            get { return this.Signature == 0xFEEF04BD; }
+            get { return Signature == 0xFEEF04BD; }
         }
 
         /// <summary>
@@ -119,19 +121,19 @@ namespace Fody.VersionResources
             get
             {
                 return new Version(
-                    Helpers.HiWord(this.FileVersionMS),
-                    Helpers.LoWord(this.FileVersionMS),
-                    Helpers.HiWord(this.FileVersionLS),
-                    Helpers.LoWord(this.FileVersionLS));
+                    Helpers.HiWord(FileVersionMS),
+                    Helpers.LoWord(FileVersionMS),
+                    Helpers.HiWord(FileVersionLS),
+                    Helpers.LoWord(FileVersionLS));
             }
 
             set
             {
-                this.FileVersionMS = (uint)value.Major << 16;
-                this.FileVersionMS += (uint)value.Minor;
+                FileVersionMS = (uint)value.Major << 16;
+                FileVersionMS += (uint)value.Minor;
 
-                this.FileVersionLS = (uint)value.Build << 16;
-                this.FileVersionLS += (uint)value.Revision;
+                FileVersionLS = (uint)value.Build << 16;
+                FileVersionLS += (uint)value.Revision;
             }
         }
 
@@ -143,19 +145,19 @@ namespace Fody.VersionResources
             get
             {
                 return new Version(
-                    Helpers.HiWord(this.ProductVersionMS),
-                    Helpers.LoWord(this.ProductVersionMS),
-                    Helpers.HiWord(this.ProductVersionLS),
-                    Helpers.LoWord(this.ProductVersionLS));
+                    Helpers.HiWord(ProductVersionMS),
+                    Helpers.LoWord(ProductVersionMS),
+                    Helpers.HiWord(ProductVersionLS),
+                    Helpers.LoWord(ProductVersionLS));
             }
 
             set
             {
-                this.ProductVersionMS = (uint)value.Major << 16;
-                this.ProductVersionMS += (uint)value.Minor;
+                ProductVersionMS = (uint)value.Major << 16;
+                ProductVersionMS += (uint)value.Minor;
 
-                this.ProductVersionLS = (uint)value.Build << 16;
-                this.ProductVersionLS += (uint)value.Revision;
+                ProductVersionLS = (uint)value.Build << 16;
+                ProductVersionLS += (uint)value.Revision;
             }
         }
     }

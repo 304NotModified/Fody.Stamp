@@ -7,7 +7,7 @@ using NUnit.Framework;
 public class GitTests
 {
     [Test]
-    [Ignore]
+    [Explicit]
     public void Foo()
     {
 		using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))

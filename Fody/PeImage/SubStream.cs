@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2014 Quamotion bvba
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2014 Quamotion bvba
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -68,11 +69,11 @@ namespace Fody.PeImage
         public SubStream(Stream stream, long offset, long length, bool leaveParentOpen = false)
         {
             this.stream = stream;
-            this.subStreamOffset = offset;
-            this.subStreamLength = length;
+            subStreamOffset = offset;
+            subStreamLength = length;
             this.leaveParentOpen = leaveParentOpen;
 
-            this.Seek(0, SeekOrigin.Begin);
+            Seek(0, SeekOrigin.Begin);
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.stream.CanRead;
+                return stream.CanRead;
             }
         }
 
@@ -93,7 +94,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.stream.CanSeek;
+                return stream.CanSeek;
             }
         }
 
@@ -102,7 +103,7 @@ namespace Fody.PeImage
         /// </summary>
         public override bool CanWrite
         {
-            get { return this.stream.CanWrite; }
+            get { return stream.CanWrite; }
         }
 
         /// <summary>
@@ -112,7 +113,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.subStreamLength;
+                return subStreamLength;
             }
         }
 
@@ -123,12 +124,12 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.stream.Position - this.Offset;
+                return stream.Position - Offset;
             }
 
             set
             {
-                this.stream.Position = value + this.Offset;
+                stream.Position = value + Offset;
             }
         }
 
@@ -139,7 +140,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.stream;
+                return stream;
             }
         }
 
@@ -150,7 +151,7 @@ namespace Fody.PeImage
         {
             get
             {
-                return this.subStreamOffset;
+                return subStreamOffset;
             }
         }
 
@@ -160,9 +161,9 @@ namespace Fody.PeImage
         /// </summary>
         public override void Close()
         {
-            if (!this.leaveParentOpen)
+            if (!leaveParentOpen)
             {
-                this.stream.Close();
+                stream.Close();
             }
 
             base.Close();
@@ -173,7 +174,7 @@ namespace Fody.PeImage
         /// </summary>
         public override void Flush()
         {
-            this.stream.Flush();
+            stream.Flush();
         }
 
         /// <summary>
@@ -196,10 +197,10 @@ namespace Fody.PeImage
         public override int Read(byte[] buffer, int offset, int count)
         {
             // Make sure we don't pass the size of the substream
-            long bytesRemaining = this.Length - this.Position;
-            long bytesToRead = Math.Min(count, bytesRemaining);
+            var bytesRemaining = Length - Position;
+            var bytesToRead = Math.Min(count, bytesRemaining);
 
-            return this.stream.Read(buffer, offset, (int)bytesToRead);
+            return stream.Read(buffer, offset, (int)bytesToRead);
         }
 
         /// <summary>
@@ -217,7 +218,7 @@ namespace Fody.PeImage
         /// </param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            this.stream.Write(buffer, offset, count);
+            stream.Write(buffer, offset, count);
         }
 
         /// <summary>
@@ -228,7 +229,7 @@ namespace Fody.PeImage
         /// </param>
         public override void WriteByte(byte value)
         {
-            this.stream.WriteByte(value);
+            stream.WriteByte(value);
         }
 
         /// <summary>
@@ -248,19 +249,19 @@ namespace Fody.PeImage
             switch (origin)
             {
                 case SeekOrigin.Begin:
-                    offset += this.subStreamOffset;
+                    offset += subStreamOffset;
                     break;
 
                 case SeekOrigin.End:
-                    long enddelta = this.subStreamOffset + this.subStreamLength - this.stream.Length;
+                    var enddelta = subStreamOffset + subStreamLength - stream.Length;
                     offset += enddelta;
                     break;
                 case SeekOrigin.Current:
-                    offset += this.subStreamOffset;
+                    offset += subStreamOffset;
                     break;
             }
 
-            return this.stream.Seek(offset, origin);
+            return stream.Seek(offset, origin);
         }
 
         /// <summary>
@@ -271,7 +272,7 @@ namespace Fody.PeImage
         /// </param>
         public override void SetLength(long value)
         {
-            this.subStreamLength = value;
+            subStreamLength = value;
         }
 
         /// <summary>
@@ -285,8 +286,8 @@ namespace Fody.PeImage
         /// </param>
         public void UpdateWindow(long offset, long length)
         {
-            this.subStreamOffset = offset;
-            this.subStreamLength = length;
+            subStreamOffset = offset;
+            subStreamLength = length;
         }
     }
 }

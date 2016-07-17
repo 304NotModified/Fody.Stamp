@@ -1,4 +1,5 @@
-﻿// Copyright(c) 2016 Frederik Carlier
+﻿// ReSharper disable CommentTypo
+// Copyright(c) 2016 Frederik Carlier
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -49,11 +50,11 @@ namespace Fody.PeImage
                 throw new ArgumentNullException("reader");
             }
 
-            int size = Marshal.SizeOf(typeof(T));
-            byte[] data = reader.ReadBytes(size);
+            var size = Marshal.SizeOf(typeof(T));
+            var data = reader.ReadBytes(size);
 
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            T value = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            var value = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
             handle.Free();
 
             return value;
@@ -75,7 +76,7 @@ namespace Fody.PeImage
                 throw new ArgumentNullException("reader");
             }
 
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             char c;
 
@@ -103,7 +104,7 @@ namespace Fody.PeImage
                 throw new ArgumentNullException("reader");
             }
 
-            byte[] data = reader.ReadBytes(2);
+            var data = reader.ReadBytes(2);
             return Encoding.Unicode.GetString(data)[0];
         }
 

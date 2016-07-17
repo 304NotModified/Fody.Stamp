@@ -15,7 +15,7 @@ public class TaskTests
 
     public TaskTests()
     {
-        beforeAssemblyPath = Path.GetFullPath(@"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll");
+        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
@@ -47,7 +47,8 @@ public class TaskTests
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly
             .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
             .First();
-        Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
+        Assert.IsNotNull(customAttributes.InformationalVersion);
+        Assert.IsNotEmpty(customAttributes.InformationalVersion);
         Trace.WriteLine(customAttributes.InformationalVersion);
     }
 
@@ -55,8 +56,10 @@ public class TaskTests
     public void Win32Resource()
     {
         var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
-        Assert.IsNotNullOrEmpty(versionInfo.ProductVersion);
-        Assert.IsNotNullOrEmpty(versionInfo.FileVersion);
+        Assert.IsNotNull(versionInfo.ProductVersion);
+        Assert.IsNotEmpty(versionInfo.ProductVersion);
+        Assert.IsNotNull(versionInfo.FileVersion);
+        Assert.IsNotEmpty(versionInfo.FileVersion);
         Trace.WriteLine(versionInfo.ProductVersion);
         Trace.WriteLine(versionInfo.FileVersion);
     }

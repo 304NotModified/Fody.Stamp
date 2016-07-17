@@ -17,7 +17,7 @@ public class ExistingTests
 
     public ExistingTests()
     {
-        beforeAssemblyPath = Path.GetFullPath(@"..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\AssemblyToProcessExistingAttribute.dll");
+        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\AssemblyToProcessExistingAttribute.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
@@ -47,7 +47,8 @@ public class ExistingTests
     public void EnsureAttributeExists()
     {
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).First();
-        Assert.IsNotNullOrEmpty(customAttributes.InformationalVersion);
+        Assert.IsNotNull(customAttributes.InformationalVersion);
+        Assert.IsNotEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
     }
     [Test]
@@ -55,7 +56,7 @@ public class ExistingTests
     {
         var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
 
-        using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
+        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {
             var nameOfCurrentBranch = repo.Head.Name;
             Assert.True(productVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
@@ -66,10 +67,10 @@ public class ExistingTests
     [Test]
     public void TemplateIsReplaced()
     {
-        using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
+        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {
             var nameOfCurrentBranch = repo.Head.Name;
-            
+
             var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 .First();
             Assert.True(customAttributes.InformationalVersion.StartsWith("1.0.0+"+nameOfCurrentBranch+"."));
