@@ -1,12 +1,28 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
+using Stamp.Fody;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class Configuration
 {
     public bool UseProject { get; set; }
     public string ChangeString { get; set; } = "HasChanges";
+
+    /// <summary>
+    /// Patch production version (also called assembly information version)?
+    /// </summary>
+    public bool PatchProductionVersion { get; set; } = true;
+
+    /// <summary>
+    /// Patch (assemlby) file version?
+    ///
+    /// Default: false
+    /// </summary>
+    public bool PatchFileVersion { get; set; } = true;
+
+    //todo
+    public InformationVersionSource PatchInformationVersionSource { get; set; } = InformationVersionSource.Version;
 
     public Configuration(XElement config)
     {
@@ -17,6 +33,9 @@ public class Configuration
 
         UseProject = GetBooleanAttr(config, "UseProject") ?? UseProject;
         ChangeString = GetStringAttr(config, "HasChanges") ?? ChangeString;
+        PatchProductionVersion = GetBooleanAttr(config, "PatchProductionVersion") ?? PatchProductionVersion;
+        PatchFileVersion = GetBooleanAttr(config, "PatchProductionVersion") ?? PatchFileVersion;
+        //todo read source
     }
 
     /// <summary>

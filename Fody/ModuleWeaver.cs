@@ -11,15 +11,21 @@ using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
 using Mono.Collections.Generic;
+using Stamp.Fody;
 using Stamp.Fody.Internal;
 
 public class ModuleWeaver : BaseModuleWeaver
 {
+    private const string InfoAttributeName = nameof(System.Reflection.AssemblyInformationalVersionAttribute);
+    private const string FileAttributeName = nameof(System.Reflection.AssemblyFileVersionAttribute);
     private static bool _isPathSet;
-    private readonly FormatStringTokenResolver _formatStringTokenResolver;
     private string _assemblyInfoVersion;
-    private Version _assemblyVersion;
+    private Version _versionToUse;
     private bool _dotGitDirExists;
+
+   
+    private Configuration _config;
+    private bool _doPatch;
 
     private Collection<CustomAttribute> CustomAttributes => ModuleDefinition.Assembly.CustomAttributes;
 
@@ -27,7 +33,6 @@ public class ModuleWeaver : BaseModuleWeaver
     {
         LogInfo = s => { };
         LogWarning = s => { };
-        _formatStringTokenResolver = new FormatStringTokenResolver();
     }
 
     public override void Execute()
@@ -35,8 +40,11 @@ public class ModuleWeaver : BaseModuleWeaver
         SetSearchPath();
 
         var config = new Configuration(Config);
+        _config = config;
 
         LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
+
+        _doPatch = true;
 
         var gitDir = Repository.Discover(config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath);
         if (gitDir == null)
@@ -58,7 +66,12 @@ public class ModuleWeaver : BaseModuleWeaver
                 return;
             }
 
-            _assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+           
+
+            if (_config.PatchInformationVersionSource == InformationVersionSource.Version)
+                _versionToUse = ModuleDefinition.Assembly.Name.Version;
+            else
+                _versionToUse = GetAssemblyFileVersion(CustomAttributes);
 
             var assemblyInformationalVersionAttribute = GetAssemblyInformationalVersionAttribute(CustomAttributes);
             if (assemblyInformationalVersionAttribute != null)
@@ -92,18 +105,36 @@ public class ModuleWeaver : BaseModuleWeaver
 
     private string CreateAssemblyInfoByReplacingTokens(Repository repo, Configuration config)
     {
-        return _formatStringTokenResolver.ReplaceTokens(_assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
+        return FormatStringTokenResolver.ReplaceTokens(_assemblyInfoVersion, _versionToUse, repo, config.ChangeString);
     }
 
     private string CreateAssemblyInfoVersion(Repository repo, Branch branch, Configuration config)
     {
-        return $"{_assemblyVersion} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
+        return $"{_versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
     }
 
-    private static CustomAttribute GetAssemblyInformationalVersionAttribute(Collection<CustomAttribute> customAttributes)
+    private static CustomAttribute GetAssemblyInformationalVersionAttribute(ICollection<CustomAttribute> customAttributes)
     {
-        var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
+        var customAttribute = GetCustomAttribute(customAttributes, "AssemblyInformationalVersionAttribute");
         return customAttribute;
+    }
+
+    private Version GetAssemblyFileVersion(ICollection<CustomAttribute> customAttributes)
+    {
+        var afvAttribute = GetCustomAttribute(customAttributes, FileAttributeName);
+        if (afvAttribute == null)
+        {
+            throw new WeavingException("AssemblyFileVersion attribute could not be found.");
+        }
+
+        var assemblyFileVersionString = (string) afvAttribute.ConstructorArguments[0].Value;
+        VerifyStartsWithVersion(assemblyFileVersionString);
+        return Version.Parse(assemblyFileVersionString);
+    }
+
+    private static CustomAttribute GetCustomAttribute(ICollection<CustomAttribute> attributes, string attributeName)
+    {
+        return attributes.FirstOrDefault(x => x.AttributeType.Name == attributeName);
     }
 
     private void VerifyStartsWithVersion(string versionString)
@@ -177,6 +208,11 @@ public class ModuleWeaver : BaseModuleWeaver
             return;
         }
 
+        if (!_doPatch)
+        {
+            return;
+        }
+
         try
         {
             using (var fileStream = File.Open(AssemblyFilePath, FileMode.Open, FileAccess.ReadWrite))
@@ -193,8 +229,17 @@ public class ModuleWeaver : BaseModuleWeaver
                 if (versions.FixedFileInfo != null)
                 {
                     var fixedFileInfo = versions.FixedFileInfo.Value;
-                    fixedFileInfo.FileVersion = _assemblyVersion;
-                    fixedFileInfo.ProductVersion = _assemblyVersion;
+
+                if (_config.PatchFileVersion)
+                {
+                    fixedFileInfo.FileVersion = _versionToUse;
+                }
+
+                if (_config.PatchProductionVersion)
+                {
+                    fixedFileInfo.ProductVersion = _versionToUse;
+                }
+
                     versions.FixedFileInfo = fixedFileInfo;
                 }
                 else
@@ -204,7 +249,7 @@ public class ModuleWeaver : BaseModuleWeaver
 
                 foreach (var stringTable in versions.StringFileInfo)
                 {
-                    SetTableValue(stringTable.Values, "FileVersion", _assemblyVersion.ToString());
+                    SetTableValue(stringTable.Values, "FileVersion", _versionToUse.ToString());
                     SetTableValue(stringTable.Values, "ProductVersion", _assemblyInfoVersion);
                 }
 

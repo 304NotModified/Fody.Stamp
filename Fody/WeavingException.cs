@@ -7,4 +7,9 @@ public class WeavingException : Exception
     {
 
     }
+
+    /// <inheritdoc />
+    public WeavingException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 }
