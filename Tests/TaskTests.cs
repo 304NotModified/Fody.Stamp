@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using NUnit.Framework;
+using System.Xml.Linq;
+using System;
 
 [TestFixture]
 public class TaskTests
@@ -12,19 +14,25 @@ public class TaskTests
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private string beforeAssemblyPath;
     private string afterAssemblyPath;
+    protected XElement config;
 
-    public TaskTests()
+    [OneTimeSetUp]
+    public void Setup()
     {
         beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", $"{Guid.NewGuid().ToString()}.dll");
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))
         {
+
+            var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
+            Trace.WriteLine($"Before: AssemblyVersion={moduleDefinition.Assembly.Name.Version}, FileVersion={versionInfo.FileVersion}, Config={config}");
+
             var currentDirectory = AssemblyLocation.CurrentDirectory();
 
             var weavingTask = new ModuleWeaver
@@ -33,6 +41,7 @@ public class TaskTests
                 AddinDirectoryPath = currentDirectory,
                 SolutionDirectoryPath = currentDirectory,
                 AssemblyFilePath = afterAssemblyPath,
+                Config = config
             };
 
             weavingTask.Execute();
@@ -44,16 +53,15 @@ public class TaskTests
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
 
-
     [Test]
     public void EnsureAttributeExists()
     {
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly
-            .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
+            .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
             .First();
         Assert.IsNotNull(customAttributes.InformationalVersion);
         Assert.IsNotEmpty(customAttributes.InformationalVersion);
-        Trace.WriteLine(customAttributes.InformationalVersion);
+        Trace.WriteLine($"InfoVersion: {customAttributes.InformationalVersion}");
     }
 
     [Test]
@@ -64,8 +72,8 @@ public class TaskTests
         Assert.IsNotEmpty(versionInfo.ProductVersion);
         Assert.IsNotNull(versionInfo.FileVersion);
         Assert.IsNotEmpty(versionInfo.FileVersion);
-        Trace.WriteLine(versionInfo.ProductVersion);
-        Trace.WriteLine(versionInfo.FileVersion);
+        Trace.WriteLine($"ProductVersion: {versionInfo.ProductVersion}");
+        Trace.WriteLine($"FileVersion: {versionInfo.FileVersion}");
     }
 
 
@@ -77,4 +85,22 @@ public class TaskTests
     }
 #endif
 
+}
+
+[TestFixture]
+class UseFileVersionTests : TaskTests
+{
+    public UseFileVersionTests()
+    {
+        config = XElement.Parse("<Stamp UseFileVersion=\"true\" />");
+    }
+}
+
+[TestFixture]
+class OverwriteFileVersionTests : TaskTests
+{
+    public OverwriteFileVersionTests()
+    {
+        config = XElement.Parse("<Stamp OverwriteFileVersion=\"false\" />");
+    }
 }

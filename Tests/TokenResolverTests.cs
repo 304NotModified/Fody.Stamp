@@ -5,12 +5,13 @@ using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
+using Version = System.Version;
 
 [TestFixture]
 public class TokenResolverTests
 {
-    private ModuleDefinition moduleDefinition;
     private FormatStringTokenResolver resolver;
+    private Version version;
 
 
     public TokenResolverTests()
@@ -19,7 +20,8 @@ public class TokenResolverTests
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
-        moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
+        var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
+        version = moduleDefinition.Assembly.Name.Version;
 
         resolver = new FormatStringTokenResolver();
     }
@@ -37,7 +39,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%version%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%version%", version, repo, "");
 
                 Assert.AreEqual("1.0.0.0", result);
             });
@@ -48,7 +50,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%version1%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%version1%", version, repo, "");
 
                 Assert.AreEqual("1", result);
             });
@@ -59,7 +61,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%version2%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%version2%", version, repo, "");
 
                 Assert.AreEqual("1.0", result);
             });
@@ -70,7 +72,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%version3%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%version3%", version, repo, "");
 
                 Assert.AreEqual("1.0.0", result);
             });
@@ -81,7 +83,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%version4%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%version4%", version, repo, "");
 
                 Assert.AreEqual("1.0.0.0", result);
             });
@@ -94,7 +96,7 @@ public class TokenResolverTests
             {
                 var branchName = repo.Head.FriendlyName;
 
-                var result = resolver.ReplaceTokens("%branch%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%branch%", version, repo, "");
 
                 Assert.AreEqual(branchName, result);
             });
@@ -107,7 +109,7 @@ public class TokenResolverTests
             {
                 var sha = repo.Head.Tip.Sha;
 
-                var result = resolver.ReplaceTokens("%githash%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%githash%", version, repo, "");
 
                 Assert.AreEqual(sha, result);
             });
@@ -118,7 +120,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%haschanges%", moduleDefinition, repo, "HasChanges");
+                var result = resolver.ReplaceTokens("%haschanges%", version, repo, "HasChanges");
 
                 if (repo.IsClean())
                 {
@@ -138,7 +140,7 @@ public class TokenResolverTests
             {
                 var currentUser = Environment.UserName;
 
-                var result = resolver.ReplaceTokens("%user%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%user%", version, repo, "");
 
                 Assert.IsTrue(result.EndsWith(currentUser));
             });
@@ -151,7 +153,7 @@ public class TokenResolverTests
             {
                 var machineName = Environment.MachineName;
 
-                var result = resolver.ReplaceTokens("%machine%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%machine%", version, repo, "");
 
                 Assert.AreEqual(machineName, result);
             });
@@ -161,7 +163,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var result = resolver.ReplaceTokens("%lasttag%", moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens("%lasttag%", version, repo, "");
 
                 // tags in this repose should have the format %.%.%
                 var match = Regex.IsMatch(result, @"^\d+\.\d+\.\d+$");
@@ -177,8 +179,8 @@ public class TokenResolverTests
             var now = DateTime.Now;
             var utcNow = DateTime.UtcNow;
 
-            Assert.AreEqual(now.ToString("yyMMdd"), resolver.ReplaceTokens("%now:yyMMdd%", moduleDefinition, repo, ""));
-            Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
+            Assert.AreEqual(now.ToString("yyMMdd"), resolver.ReplaceTokens("%now:yyMMdd%", version, repo, ""));
+            Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", version, repo, ""));
         });
     }
 
@@ -193,7 +195,7 @@ public class TokenResolverTests
                 var replacementTokens = string.Join("--", environmentVariables.Keys.Cast<string>()
                                                                               .Select(key => "%env[" + key + "]%")
                                                                               .ToArray());
-                var result = resolver.ReplaceTokens(replacementTokens, moduleDefinition, repo, "");
+                var result = resolver.ReplaceTokens(replacementTokens, version, repo, "");
 
                 Assert.AreEqual(expected, result);
             });
