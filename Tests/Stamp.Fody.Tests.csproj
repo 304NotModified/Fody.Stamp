@@ -75,11 +75,13 @@
   <ItemGroup>
     <Compile Include="Helpers\AssemblyLocation.cs" />
     <Compile Include="IntegrationTests\GitTests.cs" />
+    <Compile Include="OverwriteFileVersionTests.cs" />
     <Compile Include="PatchAssemblyTestsBase.cs" />
     <Compile Include="PatchExistingAssemblyTests.cs" />
     <Compile Include="TokenResolverTests.cs" />
     <Compile Include="Helpers\Verifier.cs" />
     <Compile Include="PatchAssemblyTests.cs" />
+    <Compile Include="UseFileVersionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

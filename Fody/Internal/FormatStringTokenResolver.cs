@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
-using Mono.Cecil;
 
 namespace Stamp.Fody.Internal
 {
-    internal class FormatStringTokenResolver
+    using Version = System.Version;
+
+    internal static class FormatStringTokenResolver
     {
         private static Regex reEnvironmentToken = new Regex(@"%env\[([^\]]+)]%");
         private static Regex reNow = new Regex(@"%now:([^%]+)%");
@@ -14,16 +15,15 @@ namespace Stamp.Fody.Internal
         private static DateTime now = DateTime.Now;
         private static DateTime utcNow = DateTime.UtcNow;
 
-        public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo, string changestring)
+        public static string ReplaceTokens(string template, Version version, Repository repo, string changestring)
         {
-            var assemblyVersion = moduleDefinition.Assembly.Name.Version;
             var branch = repo.Head;
 
-            template = template.Replace("%version%", assemblyVersion.ToString());
-            template = template.Replace("%version1%", assemblyVersion.ToString(1));
-            template = template.Replace("%version2%", assemblyVersion.ToString(2));
-            template = template.Replace("%version3%", assemblyVersion.ToString(3));
-            template = template.Replace("%version4%", assemblyVersion.ToString(4));
+            template = template.Replace("%version%", version.ToString());
+            template = template.Replace("%version1%", version.ToString(1));
+            template = template.Replace("%version2%", version.ToString(2));
+            template = template.Replace("%version3%", version.ToString(3));
+            template = template.Replace("%version4%", version.ToString(4));
 
             template = template.Replace("%now%", now.ToShortDateString());
             template = template.Replace("%utcnow%", utcNow.ToShortDateString());
