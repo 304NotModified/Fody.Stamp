@@ -16,20 +16,27 @@ public class Configuration
         var attr = config.Attribute("UseProjectGit");
         if (attr != null)
         {
-            try
-            {
-                UseProject = Convert.ToBoolean(attr.Value);
-            }
-            catch (Exception)
-            {
-                throw new WeavingException($"Unable to parse '{attr.Value}' as a boolean, please use true or false.");
-            }
+            UseProject = ConvertAndThrowIfNotBoolean(attr.Value);
         }
 
         attr = config.Attribute("ChangeString");
-        if (!string.IsNullOrWhiteSpace(attr?.Value))
+        if (HasValue(attr))
         {
-            ChangeString = config.Attribute("ChangeString").Value;
+            ChangeString = attr.Value;
         }
+    }
+
+    private bool HasValue(XAttribute attr)
+    {
+        return !String.IsNullOrWhiteSpace(attr?.Value);
+    }
+
+    private bool ConvertAndThrowIfNotBoolean(string value)
+    {
+        bool result;
+        if (Boolean.TryParse(value, out result))
+            return result;
+        else
+            throw new WeavingException($"Unable to parse '{value}' as a boolean; please use 'true' or 'false'.");
     }
 }
