@@ -3,7 +3,8 @@ using System.Xml.Linq;
 
 public class Configuration
 {
-    public bool UseProject;
+    public bool UseProject = false;
+    public bool UseAssemblyFileVersion = false;
     public string ChangeString = "HasChanges";
 
     public Configuration(XElement config)
@@ -17,6 +18,12 @@ public class Configuration
         if (attr != null)
         {
             UseProject = ConvertAndThrowIfNotBoolean(attr.Value);
+        }
+
+        attr = config.Attribute("UseAssemblyFileVersion");
+        if (HasValue(attr))
+        {
+            UseAssemblyFileVersion = ConvertAndThrowIfNotBoolean(attr.Value);
         }
 
         attr = config.Attribute("ChangeString");
