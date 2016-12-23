@@ -31,10 +31,14 @@ The tokens are:
 - `%version2%` is replaced with the major and minor version (1.0)
 - `%version3%` is replaced with the major, minor, and revision version (1.0.0)
 - `%version4%` is replaced with the major, minor, revision, and build version (1.0.0.0)
+- `%now%` is replaced with the current short date
+- `%utcnow%` is replaced with the current utc short date
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
 - `%shorthash%` is replaced with the first eight characters of %githash%
 - `%branch%` is replaced with the branch name of the repository
 - `%haschanges%` is replaced with the string defined in the ChangeString attribute in the configuration, see below.
+- `%user%` is replaced with the current user name
+- `%machinename%` is replaced with the current machine name
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 
