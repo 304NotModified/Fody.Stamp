@@ -5,6 +5,7 @@ using System.Reflection;
 using Mono.Cecil;
 using NUnit.Framework;
 using System.Xml.Linq;
+using System;
 
 [TestFixture]
 public class TaskTests
@@ -23,10 +24,15 @@ public class TaskTests
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", $"{Guid.NewGuid().ToString()}.dll");
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
+
+        var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
+        Trace.WriteLine(String.Format("Before: AssemblyVersion={0}, FileVersion={1}, Config={2}",
+            moduleDefinition.Assembly.Name.Version, versionInfo.FileVersion, config));
+
         var currentDirectory = AssemblyLocation.CurrentDirectory();
         var weavingTask = new ModuleWeaver
         {
@@ -52,7 +58,7 @@ public class TaskTests
             .First();
         Assert.IsNotNull(customAttributes.InformationalVersion);
         Assert.IsNotEmpty(customAttributes.InformationalVersion);
-        Trace.WriteLine(customAttributes.InformationalVersion);
+        Trace.WriteLine($"InfoVersion: {customAttributes.InformationalVersion}");
     }
 
     [Test]
@@ -63,8 +69,8 @@ public class TaskTests
         Assert.IsNotEmpty(versionInfo.ProductVersion);
         Assert.IsNotNull(versionInfo.FileVersion);
         Assert.IsNotEmpty(versionInfo.FileVersion);
-        Trace.WriteLine(versionInfo.ProductVersion);
-        Trace.WriteLine(versionInfo.FileVersion);
+        Trace.WriteLine($"ProductVersion: {versionInfo.ProductVersion}");
+        Trace.WriteLine($"FileVersion: {versionInfo.FileVersion}");
     }
 
 
@@ -76,4 +82,22 @@ public class TaskTests
     }
 #endif
 
+}
+
+[TestFixture]
+class UseFileVersionTests : TaskTests
+{
+    public UseFileVersionTests()
+    {
+        config = XElement.Parse("<Stamp UseFileVersion=\"true\" />");
+    }
+}
+
+[TestFixture]
+class OverwriteFileVersionTests : TaskTests
+{
+    public OverwriteFileVersionTests()
+    {
+        config = XElement.Parse("<Stamp OverwriteFileVersion=\"false\" />");
+    }
 }
