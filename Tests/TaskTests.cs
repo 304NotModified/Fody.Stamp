@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using NUnit.Framework;
+using System.Xml.Linq;
 
 [TestFixture]
 public class TaskTests
@@ -12,8 +13,10 @@ public class TaskTests
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     string beforeAssemblyPath;
     string afterAssemblyPath;
+    protected XElement config = null;
 
-    public TaskTests()
+    [OneTimeSetUp]
+    public void Setup()
     {
         beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
 #if (!DEBUG)
@@ -26,12 +29,13 @@ public class TaskTests
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
         var currentDirectory = AssemblyLocation.CurrentDirectory();
         var weavingTask = new ModuleWeaver
-                          {
-                              ModuleDefinition = moduleDefinition,
-                              AddinDirectoryPath = currentDirectory,
-                              SolutionDirectoryPath = currentDirectory,
-                              AssemblyFilePath = afterAssemblyPath,
-                          };
+        {
+            ModuleDefinition = moduleDefinition,
+            AddinDirectoryPath = currentDirectory,
+            SolutionDirectoryPath = currentDirectory,
+            AssemblyFilePath = afterAssemblyPath,
+            Config = config
+        };
 
         weavingTask.Execute();
         moduleDefinition.Write(afterAssemblyPath);
@@ -39,7 +43,6 @@ public class TaskTests
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }
-
 
     [Test]
     public void EnsureAttributeExists()

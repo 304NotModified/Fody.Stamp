@@ -29,7 +29,7 @@ public class ModuleWeaver
     Configuration _config;
 
     const string INFO_ATTRIBUTE = "AssemblyInformationalVersionAttribute";
-    const string FILE_ATTRIBUTE = "AssemblyFileAttribute";
+    const string FILE_ATTRIBUTE = "AssemblyFileVersionAttribute";
 
     public ModuleWeaver()
     {
