@@ -31,16 +31,20 @@ The tokens are:
 - `%version2%` is replaced with the major and minor version (1.0)
 - `%version3%` is replaced with the major, minor, and revision version (1.0.0)
 - `%version4%` is replaced with the major, minor, revision, and build version (1.0.0.0)
+- `%now%` is replaced with the current short date
+- `%utcnow%` is replaced with the current utc short date
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
 - `%shorthash%` is replaced with the first eight characters of %githash%
 - `%branch%` is replaced with the branch name of the repository
 - `%haschanges%` is replaced with the string defined in the ChangeString attribute in the configuration, see below.
+- `%user%` is replaced with the current user name
+- `%machinename%` is replaced with the current machine name
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 
 ## Configuration
 
-All config options are attributes of Stamp in FodyWeavers.xml
+All config options are attributes of the `Stamp` node in `FodyWeavers.xml`
 
 ### ChangeString
 
@@ -48,15 +52,31 @@ Define the string used to indicate that the code was built from a non clean repo
 
 *Default is `HasChanges`*
 
-	<Fody ChangeString="New text" />
+	<Stamp ChangeString="New text" />
 
 ### UseProjectGit
 
-Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (true) or the SolutionDir (false).
+Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (`true`) or the SolutionDir (`false`).
 
 *Default is `false`*
 
-	<Fody UseProjectGit='true' />
+	<Stamp UseProjectGit='true' />
+
+### OverwriteFileVersion
+
+By default, Stamp will overwrite the `AssemblyFileVersion` with the `AssemblyVersion`. Setting this to `false` will preserve the existing `AssemblyFileVersion`.
+
+*Default is `true`*
+
+	<Stamp OverwriteFileVersion='false' />
+
+### UseFileVersion
+
+By default, Stamp uses the value from `AssemblyVersion` to construct the `AssemblyInformationalVersion`. Set this to `true` to use the `AssemblyFileVersion` instead. **Note:** If this is set to `true`, `OverwriteFileVersion` will be `false` and will ignore any value explicitly set.
+
+*Default is `false`*
+
+	<Stamp UseFileVersion='true' />
 	
 ## Icon
 

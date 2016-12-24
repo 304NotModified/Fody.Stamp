@@ -7,6 +7,8 @@ using Mono.Cecil;
 using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
+using Mono.Collections.Generic;
+using System.Collections.Generic;
 
 public class ModuleWeaver
 {
@@ -21,8 +23,13 @@ public class ModuleWeaver
     static bool isPathSet;
     readonly FormatStringTokenResolver formatStringTokenResolver;
     string assemblyInfoVersion;
-    Version assemblyVersion;
+    Version versionToUse;
     bool dotGitDirExists;
+
+    Configuration _config;
+
+    const string INFO_ATTRIBUTE = "AssemblyInformationalVersionAttribute";
+    const string FILE_ATTRIBUTE = "AssemblyFileVersionAttribute";
 
     public ModuleWeaver()
     {
@@ -35,14 +42,14 @@ public class ModuleWeaver
     {
         SetSearchPath();
 
-        var config = new Configuration(Config);
+        _config = new Configuration(Config);
 
-        LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
+        LogInfo("Starting search for git repository in " + (_config.UseProject ? "ProjectDir" : "SolutionDir"));
 
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
+        var gitDir = Repository.Discover( _config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
@@ -62,13 +69,16 @@ public class ModuleWeaver
                 return;
             }
 
-            assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+            if (!_config.UseFileVersion)
+                versionToUse = ModuleDefinition.Assembly.Name.Version;
+            else
+                versionToUse = GetAssemblyFileVersion(customAttributes);
 
-            var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
+            var customAttribute = GetCustomAttribute(customAttributes, INFO_ATTRIBUTE);
             if (customAttribute != null)
             {
                 assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
+                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, _config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
             }
@@ -78,12 +88,32 @@ public class ModuleWeaver
                 var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
-                assemblyInfoVersion = $"{assemblyVersion} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
+                assemblyInfoVersion = $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + _config.ChangeString)}";
 
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
             }
         }
+    }
+
+    private CustomAttribute GetCustomAttribute(Collection<CustomAttribute> attributes, string attributeName)
+    {
+        return attributes.FirstOrDefault(x => x.AttributeType.Name == attributeName);
+    }
+
+    private Version GetAssemblyFileVersion(Collection<CustomAttribute> customAttributes)
+    {        
+        var afvAttribute = GetCustomAttribute(customAttributes, FILE_ATTRIBUTE);
+        if (afvAttribute != null)
+        {
+            var assemblyFileVersionString = (string)afvAttribute.ConstructorArguments[0].Value;
+            VerifyStartsWithVersion(assemblyFileVersionString);
+            return Version.Parse(assemblyFileVersionString);
+        }
+        else
+        {
+            throw new WeavingException("AssemblyFileVersion attribute could not be found.");
+        }      
     }
 
     void VerifyStartsWithVersion(string versionString)
@@ -137,13 +167,13 @@ public class ModuleWeaver
     TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
-        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
+        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == INFO_ATTRIBUTE);
         if (msCoreAttribute != null)
         {
             return msCoreAttribute;
         }
         var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
-        return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
+        return systemRuntime.MainModule.Types.First(x => x.Name == INFO_ATTRIBUTE);
     }
 
     int? GetVerPatchWaitTimeout()
@@ -187,21 +217,16 @@ public class ModuleWeaver
                 var versions = reader.Read();
 
                 var fixedFileInfo = versions.FixedFileInfo.Value;
-                fixedFileInfo.FileVersion = assemblyVersion;
-                fixedFileInfo.ProductVersion = assemblyVersion;
+                if (_config.OverwriteFileVersion)
+                    fixedFileInfo.FileVersion = versionToUse;
+                fixedFileInfo.ProductVersion = versionToUse;
                 versions.FixedFileInfo = fixedFileInfo;
 
                 foreach (var stringTable in versions.StringFileInfo)
                 {
-                    if (stringTable.Values.ContainsKey("FileVersion"))
-                    {
-                        stringTable.Values["FileVersion"] = assemblyVersion.ToString();
-                    }
-
-                    if (stringTable.Values.ContainsKey("ProductVersion"))
-                    {
-                        stringTable.Values["ProductVersion"] = assemblyInfoVersion;
-                    }
+                    if (_config.OverwriteFileVersion)
+                        SetTableValue(stringTable.Values, "FileVersion", versionToUse.ToString());
+                    SetTableValue(stringTable.Values, "ProductVersion", assemblyInfoVersion);
                 }
 
                 versionStream.Position = 0;
@@ -216,5 +241,11 @@ public class ModuleWeaver
         {
             throw new WeavingException($"Failed to update the assembly information. {ex.Message}");
         }
+    }
+
+    private void SetTableValue(Dictionary<string, string> dict, string key, string value)
+    {
+        if (dict.ContainsKey(key))
+            dict[key] = value;
     }
 }
