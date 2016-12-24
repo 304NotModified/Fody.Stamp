@@ -5,6 +5,7 @@ public class Configuration
 {
     public bool UseProject = false;
     public bool UseFileVersion = false;
+    public bool OverwriteFileVersion = true;
     public string ChangeString = "HasChanges";
 
     public Configuration(XElement config)
@@ -15,7 +16,7 @@ public class Configuration
         }
 
         var attr = config.Attribute("UseProjectGit");
-        if (attr != null)
+        if (HasValue(attr))
         {
             UseProject = ConvertAndThrowIfNotBoolean(attr.Value);
         }
@@ -30,6 +31,17 @@ public class Configuration
         if (HasValue(attr))
         {
             ChangeString = attr.Value;
+        }
+
+        if (UseFileVersion)
+            OverwriteFileVersion = false;
+        else
+        {
+            attr = config.Attribute("OverwriteFileVersion");
+            if (HasValue(attr))
+            {
+                OverwriteFileVersion = ConvertAndThrowIfNotBoolean(attr.Value);
+            }
         }
     }
 

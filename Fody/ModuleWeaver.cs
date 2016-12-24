@@ -26,6 +26,8 @@ public class ModuleWeaver
     Version versionToUse;
     bool dotGitDirExists;
 
+    Configuration _config;
+
     const string INFO_ATTRIBUTE = "AssemblyInformationalVersionAttribute";
     const string FILE_ATTRIBUTE = "AssemblyFileAttribute";
 
@@ -40,14 +42,14 @@ public class ModuleWeaver
     {
         SetSearchPath();
 
-        var config = new Configuration(Config);
+        _config = new Configuration(Config);
 
-        LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
+        LogInfo("Starting search for git repository in " + (_config.UseProject ? "ProjectDir" : "SolutionDir"));
 
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
+        var gitDir = Repository.Discover( _config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
@@ -67,7 +69,7 @@ public class ModuleWeaver
                 return;
             }
 
-            if (!config.UseFileVersion)
+            if (!_config.UseFileVersion)
                 versionToUse = ModuleDefinition.Assembly.Name.Version;
             else
                 versionToUse = GetAssemblyFileVersion(customAttributes);
@@ -76,7 +78,7 @@ public class ModuleWeaver
             if (customAttribute != null)
             {
                 assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, config.ChangeString);
+                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, _config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
             }
@@ -86,7 +88,7 @@ public class ModuleWeaver
                 var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
-                assemblyInfoVersion = $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
+                assemblyInfoVersion = $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + _config.ChangeString)}";
 
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
@@ -215,13 +217,15 @@ public class ModuleWeaver
                 var versions = reader.Read();
 
                 var fixedFileInfo = versions.FixedFileInfo.Value;
-                fixedFileInfo.FileVersion = versionToUse;
+                if (_config.OverwriteFileVersion)
+                    fixedFileInfo.FileVersion = versionToUse;
                 fixedFileInfo.ProductVersion = versionToUse;
                 versions.FixedFileInfo = fixedFileInfo;
 
                 foreach (var stringTable in versions.StringFileInfo)
                 {
-                    SetTableValue(stringTable.Values, "FileVersion", versionToUse.ToString());
+                    if (_config.OverwriteFileVersion)
+                        SetTableValue(stringTable.Values, "FileVersion", versionToUse.ToString());
                     SetTableValue(stringTable.Values, "ProductVersion", assemblyInfoVersion);
                 }
 
