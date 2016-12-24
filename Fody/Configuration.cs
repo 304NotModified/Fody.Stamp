@@ -4,7 +4,7 @@ using System.Xml.Linq;
 public class Configuration
 {
     public bool UseProject = false;
-    public bool UseAssemblyFileVersion = false;
+    public bool UseFileVersion = false;
     public string ChangeString = "HasChanges";
 
     public Configuration(XElement config)
@@ -20,10 +20,10 @@ public class Configuration
             UseProject = ConvertAndThrowIfNotBoolean(attr.Value);
         }
 
-        attr = config.Attribute("UseAssemblyFileVersion");
+        attr = config.Attribute("UseFileVersion");
         if (HasValue(attr))
         {
-            UseAssemblyFileVersion = ConvertAndThrowIfNotBoolean(attr.Value);
+            UseFileVersion = ConvertAndThrowIfNotBoolean(attr.Value);
         }
 
         attr = config.Attribute("ChangeString");
@@ -40,10 +40,14 @@ public class Configuration
 
     private bool ConvertAndThrowIfNotBoolean(string value)
     {
-        bool result;
-        if (Boolean.TryParse(value, out result))
+        try
+        {
+            var result = Convert.ToBoolean(value);
             return result;
-        else
+        }
+        catch
+        {
             throw new WeavingException($"Unable to parse '{value}' as a boolean; please use 'true' or 'false'.");
+        }
     }
 }
