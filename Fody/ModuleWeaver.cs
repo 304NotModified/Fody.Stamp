@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using LibGit2Sharp;
 using Mono.Cecil;
@@ -23,6 +25,8 @@ public class ModuleWeaver
     string assemblyInfoVersion;
     Version assemblyVersion;
     bool dotGitDirExists;
+
+    private List<string> _osxFiles = new List<string>(); 
 
     public ModuleWeaver()
     {
@@ -112,6 +116,35 @@ public class ModuleWeaver
         }
     }
 
+    [DllImport("libc")]
+    static extern int uname(IntPtr buf);
+
+    //From Managed.Windows.Forms/XplatUI
+    static bool IsRunningOnMac()
+    {
+        IntPtr buf = IntPtr.Zero;
+        try
+        {
+            buf = Marshal.AllocHGlobal(8192);
+            // This is a hacktastic way of getting sysname from uname ()
+            if (uname(buf) == 0)
+            {
+                string os = Marshal.PtrToStringAnsi(buf);
+                if (os == "Darwin")
+                    return true;
+            }
+        }
+        catch
+        {
+        }
+        finally
+        {
+            if (buf != IntPtr.Zero)
+                Marshal.FreeHGlobal(buf);
+        }
+        return false;
+    }
+
     void SetSearchPath()
     {
         if (isPathSet)
@@ -119,10 +152,47 @@ public class ModuleWeaver
             return;
         }
         isPathSet = true;
-        var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture());
-        var existingPath = Environment.GetEnvironmentVariable("PATH");
-        var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
-        Environment.SetEnvironmentVariable("PATH", newPath);
+
+
+        if (Path.DirectorySeparatorChar == '\\')
+        {
+            var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", "win", GetProcessorArchitecture());
+            var existingPath = Environment.GetEnvironmentVariable("PATH");
+            var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
+            Environment.SetEnvironmentVariable("PATH", newPath);
+            LogInfo("Detected windows, set PATH to: " + newPath);
+        }
+        else if (IsRunningOnMac())
+        {
+            var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", "osx");
+            var existingPath = Environment.GetEnvironmentVariable("DYLD_LIBRARY_PATH");
+            var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
+            Environment.SetEnvironmentVariable("DYLD_LIBRARY_PATH", newPath);
+            LogInfo("Detected osx, set DYLD_LIBRARY_PATH to: " + newPath);
+            LogInfo("Detected osx, DYLD_LIBRARY_PATH might not be supported, also copying dylib to current dir: " + Directory.GetCurrentDirectory());
+            string[] files = Directory.GetFiles(nativeBinaries);
+            foreach (string s in files)
+            {
+                // Use static Path methods to extract only the file name from the path.
+                var fileName = Path.GetFileName(s);
+                var destFile = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+                LogInfo($"Copying {fileName} to {destFile}");
+                _osxFiles.Add(destFile);
+                File.Copy(s, destFile, true);
+            }
+        }
+        else if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", "linux");
+            var existingPath = Environment.GetEnvironmentVariable("LD_LIBRARY_PATH");
+            var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
+            Environment.SetEnvironmentVariable("LD_LIBRARY_PATH", newPath);
+            LogInfo("Detected linux, set LD_LIBRARY_PATH to: " + newPath);
+        }
+        else
+        {
+            throw new WeavingException("Could not determine OS");
+        }
     }
 
     static string GetProcessorArchitecture()
@@ -172,6 +242,16 @@ public class ModuleWeaver
         {
             return;
         }
+
+        try
+        {
+            foreach (var osxFile in _osxFiles)
+            {
+                File.Delete(osxFile);
+            }  
+        }
+        catch
+        { }
 
         try
         {

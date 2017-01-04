@@ -137,13 +137,21 @@
     <MakeDir Directories="$(SolutionDir)NuGetBuild" />
     <Exec Command="&quot;$(SolutionDir)Tools\ilmerge.exe&quot; /out:&quot;$(SolutionDir)NuGetBuild\Stamp.Fody.dll&quot; &quot;$(TargetDir)Stamp.Fody.dll&quot; &quot;$(TargetDir)LibGit2Sharp.dll&quot;  /target:library /targetplatform:v4" />
     <CreateItem Include="$(TargetDir)\NativeBinaries\amd64\*.dll">
-      <Output TaskParameter="Include" ItemName="amd64" />
+      <Output TaskParameter="Include" ItemName="win_amd64" />
     </CreateItem>
-    <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
+    <Copy SourceFiles="@(win_amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\win\amd64" />
     <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
-      <Output TaskParameter="Include" ItemName="x86" />
+      <Output TaskParameter="Include" ItemName="win_x86" />
     </CreateItem>
-    <Copy SourceFiles="@(x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
+    <Copy SourceFiles="@(win_x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\win\x86" />
+	<CreateItem Include="$(TargetDir)NativeBinaries\linux\amd64\*.so">
+      <Output TaskParameter="Include" ItemName="linux" />
+    </CreateItem>
+    <Copy SourceFiles="@(linux)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\linux" />
+    <CreateItem Include="$(TargetDir)NativeBinaries\osx\*.dylib">
+      <Output TaskParameter="Include" ItemName="osx" />
+    </CreateItem>
+    <Copy SourceFiles="@(osx)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\osx" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\install.ps1" />
     <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\uninstall.ps1" />
