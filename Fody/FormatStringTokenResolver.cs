@@ -34,6 +34,8 @@ public class FormatStringTokenResolver
         template = template.Replace("%user%", FormatUserName());
         template = template.Replace("%machine%", Environment.MachineName);
 
+        template = template.Replace("%version_tag%", repo.FindVersionTag());
+
         template = reEnvironmentToken.Replace(template, FormatEnvironmentVariable);
         template = reNow.Replace(template, FormatTime);
         template = reUtcNow.Replace(template, FormatUtcTime);
