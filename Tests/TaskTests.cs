@@ -23,19 +23,23 @@ public class TaskTests
         afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
-        var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
-        var currentDirectory = AssemblyLocation.CurrentDirectory();
-        var weavingTask = new ModuleWeaver
-                          {
-                              ModuleDefinition = moduleDefinition,
-                              AddinDirectoryPath = currentDirectory,
-                              SolutionDirectoryPath = currentDirectory,
-                              AssemblyFilePath = afterAssemblyPath,
-                          };
+        using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))
+        {
+            var currentDirectory = AssemblyLocation.CurrentDirectory();
 
-        weavingTask.Execute();
-        moduleDefinition.Write(afterAssemblyPath);
-        weavingTask.AfterWeaving();
+            var weavingTask = new ModuleWeaver
+            {
+                ModuleDefinition = moduleDefinition,
+                AddinDirectoryPath = currentDirectory,
+                SolutionDirectoryPath = currentDirectory,
+                AssemblyFilePath = afterAssemblyPath,
+            };
+
+            weavingTask.Execute();
+            moduleDefinition.Write(afterAssemblyPath);
+
+            weavingTask.AfterWeaving();
+        }
 
         assembly = Assembly.LoadFile(afterAssemblyPath);
     }

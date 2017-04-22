@@ -136,34 +136,14 @@ public class ModuleWeaver
 
     TypeDefinition GetVersionAttribute()
     {
-        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
+        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve(new AssemblyNameReference("mscorlib", null));
         var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
         if (msCoreAttribute != null)
         {
             return msCoreAttribute;
         }
-        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
+        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve(new AssemblyNameReference("System.Runtime", null));
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
-    }
-
-    int? GetVerPatchWaitTimeout()
-    {
-        if (Config == null)
-        {
-            return null;
-        }
-        var xAttributes = Config.Attributes();
-        var timeoutSetting = xAttributes.FirstOrDefault(attr => attr.Name.LocalName == "VerPatchWaitTimeoutInMilliseconds");
-        if (timeoutSetting == null)
-        {
-            return null;
-        }
-        int timeoutInMilliseconds;
-        if (int.TryParse(timeoutSetting.Value, out timeoutInMilliseconds) && timeoutInMilliseconds > 0)
-        {
-            return timeoutInMilliseconds;
-        }
-        return null;
     }
 
     public void AfterWeaving()
