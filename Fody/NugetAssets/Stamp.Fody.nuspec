@@ -3,7 +3,7 @@
   <metadata minClientVersion="2.8">
     <id>Stamp.Fody</id>
     <version>$version$</version>
-    <title>Stamp.Fody</title>
+    <title>Stamp.Fody (no longer maintained)</title>
     <authors>Simon Cropp</authors>
     <owners>Simon Cropp</owners>
     <developmentDependency>true</developmentDependency>
