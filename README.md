@@ -1,3 +1,6 @@
+## This project is no longer maintained. Raise an issue to take ownership
+
+
 ![Icon](https://raw.github.com/Fody/Stamp/master/Icons/package_icon.png)
 
 ### This is an add-in for [Fody](https://github.com/Fody/Fody/) 
