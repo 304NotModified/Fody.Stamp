@@ -1,3 +1,7 @@
+[![Chat on Gitter Status](https://img.shields.io/gitter/room/fody/fody.svg?style=flat)](https://gitter.im/Fody)
+[![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
+
+
 ## This project is no longer maintained. Raise an issue to take ownership
 
 
@@ -8,11 +12,12 @@
 Stamps an assembly with git data.
 
 
-## The nuget package  [![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
+## The nuget package
 
 https://nuget.org/packages/Stamp.Fody/
 
     PM> Install-Package Stamp.Fody
+
 
 ## What it does 
 
@@ -23,6 +28,7 @@ So if your assembly version is 1.0.0.0, the working branch is "master" and the l
 ```c#
 [assembly: AssemblyInformationalVersion("1.0.0.0 Head:'master' Sha:759e9ddb53271dfa9335a3b27e452749a9b22280")]
 ```
+
 
 ## Templating the version
 
@@ -43,9 +49,11 @@ The tokens are:
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 
+
 ## Configuration
 
 All config options are attributes of Stamp in FodyWeavers.xml
+
 
 ### ChangeString
 
@@ -57,6 +65,7 @@ Define the string used to indicate that the code was built from a non clean repo
 <Fody ChangeString="New text" />
 ```
 
+
 ### UseProjectGit
 
 Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (true) or the SolutionDir (false).
@@ -66,7 +75,8 @@ Define if you want to start Stamp to start searching for the Git repository in t
 ```xml
 <Fody UseProjectGit='true' />
 ```
-	
+
+
 ## Icon
 
 <a href="http://thenounproject.com/noun/stamp/#icon-No8787" target="_blank">Stamp</a> designed by <a href="http://thenounproject.com/rohithdezinr" target="_blank">Rohith M S</a> from The Noun Project
