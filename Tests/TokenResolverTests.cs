@@ -10,12 +10,11 @@ public class TokenResolverTests
 {
     ModuleDefinition moduleDefinition;
     FormatStringTokenResolver resolver;
-    string beforeAssemblyPath;
 
-    [TestFixtureSetUp]
-    public void FixtureSetUp()
+
+    public TokenResolverTests()
     {
-        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
+        var beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif

@@ -1,9 +1,7 @@
 
 [![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
 
-
-
-![Icon](https://raw.github.com/Fody/Stamp/master/Icons/package_icon.png)
+![Icon](https://raw.github.com/304NotModified/Fody.Stamp/master/Icons/package_icon.png)
 
 ### This is an add-in for [Fody](https://github.com/Fody/Fody/) 
 

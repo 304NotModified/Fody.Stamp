@@ -11,18 +11,18 @@ using Fody.VersionResources;
 public class ModuleWeaver
 {
     public XElement Config { get; set; }
-    public Action<string> LogInfo { get; set; }
-    public Action<string> LogWarning { get; set; }
+    public Action<string> LogInfo { get; }
+    public Action<string> LogWarning { get; }
     public ModuleDefinition ModuleDefinition { get; set; }
     public string SolutionDirectoryPath { get; set; }
     public string ProjectDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
-    static bool isPathSet;
-    readonly FormatStringTokenResolver formatStringTokenResolver;
-    string assemblyInfoVersion;
-    Version assemblyVersion;
-    bool dotGitDirExists;
+    private static bool isPathSet;
+    private readonly FormatStringTokenResolver formatStringTokenResolver;
+    private string assemblyInfoVersion;
+    private Version assemblyVersion;
+    private bool dotGitDirExists;
 
     public ModuleWeaver()
     {
@@ -42,7 +42,7 @@ public class ModuleWeaver
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = Repository.Discover( config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath );
+        var gitDir = Repository.Discover(config.UseProject ? ProjectDirectoryPath : SolutionDirectoryPath);
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");
@@ -67,7 +67,7 @@ public class ModuleWeaver
             var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
             if (customAttribute != null)
             {
-                assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
+                assemblyInfoVersion = (string)customAttribute.ConstructorArguments[0].Value;
                 assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
@@ -86,17 +86,16 @@ public class ModuleWeaver
         }
     }
 
-    void VerifyStartsWithVersion(string versionString)
+    private void VerifyStartsWithVersion(string versionString)
     {
         var prefix = new string(versionString.TakeWhile(x => char.IsDigit(x) || x == '.').ToArray());
-        Version fake;
-        if (!Version.TryParse(prefix, out fake))
+        if (!Version.TryParse(prefix, out _))
         {
             throw new WeavingException("The version string must be prefixed with a valid Version. The following string does not: " + versionString);
         }
     }
 
-    internal static Repository GetRepo(string gitDir)
+    private static Repository GetRepo(string gitDir)
     {
         try
         {
@@ -112,7 +111,7 @@ public class ModuleWeaver
         }
     }
 
-    void SetSearchPath()
+    private void SetSearchPath()
     {
         if (isPathSet)
         {
@@ -125,16 +124,12 @@ public class ModuleWeaver
         Environment.SetEnvironmentVariable("PATH", newPath);
     }
 
-    static string GetProcessorArchitecture()
+    private static string GetProcessorArchitecture()
     {
-        if (Environment.Is64BitProcess)
-        {
-            return "amd64";
-        }
-        return "x86";
+        return Environment.Is64BitProcess ? "amd64" : "x86";
     }
 
-    TypeDefinition GetVersionAttribute()
+    private TypeDefinition GetVersionAttribute()
     {
         var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve(new AssemblyNameReference("mscorlib", null));
         var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
