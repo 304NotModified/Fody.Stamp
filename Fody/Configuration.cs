@@ -29,7 +29,7 @@ public class Configuration
         attr = config.Attribute("ChangeString");
         if (!string.IsNullOrWhiteSpace(attr?.Value))
         {
-            ChangeString = config.Attribute("ChangeString").Value;
+            ChangeString = attr.Value;
         }
     }
 }
