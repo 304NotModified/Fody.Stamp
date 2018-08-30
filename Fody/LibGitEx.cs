@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using System.Linq;
+using LibGit2Sharp;
 
 public static class LibGitEx
 {
@@ -12,4 +13,17 @@ public static class LibGitEx
 			repositoryStatus.Removed.IsEmpty() &&
 			repositoryStatus.Staged.IsEmpty();	
 	}
+
+    internal static string FindVersionTag(this Repository repository) {
+        var tagMap = repository.Tags
+            .Where(t => t.Target is Commit)
+            .ToDictionary(t => (Commit) t.Target);
+
+        return repository.Commits.QueryBy(new CommitFilter {
+                SortBy = CommitSortStrategies.Topological
+            })
+            .Where(c => tagMap.ContainsKey(c))
+            .Select(c => tagMap[c].FriendlyName.Trim())
+            .FirstOrDefault();
+    }
 }

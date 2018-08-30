@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
@@ -153,6 +154,18 @@ public class TokenResolverTests
                 var result = resolver.ReplaceTokens("%machine%", moduleDefinition, repo, "");
 
                 Assert.AreEqual(machineName, result);
+            });
+    }
+    [Test]
+    public void Replace_tags()
+    {
+        DoWithCurrentRepo(repo =>
+            {
+                var result = resolver.ReplaceTokens("%lasttag%", moduleDefinition, repo, "");
+
+                // tags in this repose should have the format %.%.%
+                var match = Regex.IsMatch(result, @"^\d+\.\d+\.\d+$");
+                Assert.IsTrue(match, "no match for '{0}'", result);
             });
     }
 
