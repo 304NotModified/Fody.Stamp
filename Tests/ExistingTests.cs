@@ -9,12 +9,12 @@ using NUnit.Framework;
 [TestFixture]
 public class ExistingTests
 {
-    Assembly assembly;
+    private Assembly assembly;
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-    string beforeAssemblyPath;
+    private string beforeAssemblyPath;
 
-    string afterAssemblyPath;
+    private string afterAssemblyPath;
 
     public ExistingTests()
     {
@@ -50,7 +50,7 @@ public class ExistingTests
     [Test]
     public void EnsureAttributeExists()
     {
-        var customAttributes = (AssemblyInformationalVersionAttribute) assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
+        var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
         Assert.IsNotNull(customAttributes.InformationalVersion);
         Assert.IsNotEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
@@ -64,7 +64,7 @@ public class ExistingTests
         using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {
             var nameOfCurrentBranch = repo.Head.FriendlyName;
-            Assert.True(productVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
+            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", productVersion);
         }
     }
 
@@ -76,9 +76,9 @@ public class ExistingTests
         {
             var nameOfCurrentBranch = repo.Head.FriendlyName;
 
-            var customAttributes = (AssemblyInformationalVersionAttribute) assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 .First();
-            Assert.True(customAttributes.InformationalVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
+            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", customAttributes.InformationalVersion);
         }
     }
 

@@ -9,8 +9,8 @@ using NUnit.Framework;
 [TestFixture]
 public class TokenResolverTests
 {
-    ModuleDefinition moduleDefinition;
-    FormatStringTokenResolver resolver;
+    private ModuleDefinition moduleDefinition;
+    private FormatStringTokenResolver resolver;
 
 
     public TokenResolverTests()
@@ -24,7 +24,7 @@ public class TokenResolverTests
         resolver = new FormatStringTokenResolver();
     }
 
-    void DoWithCurrentRepo(Action<Repository> doWithRepo)
+    private void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
         using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {

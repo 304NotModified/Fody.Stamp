@@ -14,7 +14,7 @@ public static class Verifier
         Assert.AreEqual(TrimLineNumbers(before), TrimLineNumbers(after), message);
     }
 
-    static string Validate(string assemblyPath2)
+    private static string Validate(string assemblyPath2)
     {
         var exePath = GetPathToPeVerify();
         if (!File.Exists(exePath))
@@ -32,7 +32,7 @@ public static class Verifier
         return process.StandardOutput.ReadToEnd().Trim().Replace(assemblyPath2, "");
     }
 
-    static string GetPathToPeVerify()
+    private static string GetPathToPeVerify()
     {
         var exePath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\PEVerify.exe");
 
@@ -43,7 +43,7 @@ public static class Verifier
         return exePath;
     }
 
-    static string TrimLineNumbers(string foo)
+    private static string TrimLineNumbers(string foo)
     {
         return Regex.Replace(foo, @"0x.*]", "");
     }
