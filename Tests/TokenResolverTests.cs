@@ -92,7 +92,7 @@ public class TokenResolverTests
     {
         DoWithCurrentRepo(repo =>
             {
-                var branchName = repo.Head.Name;
+                var branchName = repo.Head.FriendlyName;
 
                 var result = resolver.ReplaceTokens("%branch%", moduleDefinition, repo, "");
 
