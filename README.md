@@ -22,7 +22,7 @@ https://nuget.org/packages/Stamp.Fody/
 
 Extracts the git information from disk, combines it with the assembly version, and places it in the `AssemblyInformationalVersionAttribute`.
 
-So if your assembly version is 1.0.0.0, the working branch is "master" and the last commit is 759e9ddb53271dfa9335a3b27e452749a9b22280 then the following attribute will be added to the assembly.
+So if your assembly version is `1.0.0.0`, the working branch is `master` and the last commit is `759e9ddb53271dfa9335a3b27e452749a9b22280` then the following attribute will be added to the assembly.
 
 ```c#
 [assembly: AssemblyInformationalVersion("1.0.0.0 Head:'master' Sha:759e9ddb53271dfa9335a3b27e452749a9b22280")]
@@ -36,22 +36,27 @@ You can customize the string used in the `AssemblyInformationalVersionAttribute`
 For example, if you add `[assembly: AssemblyInformationalVersion("%version% Branch=%branch%")]` then Stamp will change it to `[assembly: AssemblyInformationalVersion("1.0.0.0 Branch=master")]`
 
 The tokens are:
-- `%version%` is replaced with the version (1.0.0.0)
-- `%version1%` is replaced with the major version only (1)
-- `%version2%` is replaced with the major and minor version (1.0)
-- `%version3%` is replaced with the major, minor, and revision version (1.0.0)
-- `%version4%` is replaced with the major, minor, revision, and build version (1.0.0.0)
+- `%version%` is replaced with the version (`1.0.0.0`)
+- `%version1%` is replaced with the major version only (`1`)
+- `%version2%` is replaced with the major and minor version (`1.0`)
+- `%version3%` is replaced with the major, minor, and revision version (`1.0.0`)
+- `%version4%` is replaced with the major, minor, revision, and build version (`1.0.0.0`)
+- `%now%` is replaced with the current short date
+- `%utcnow%` is replaced with the current utc short date
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
-- `%shorthash%` is replaced with the first eight characters of %githash%
+- `%shorthash%` is replaced with the first eight characters of `%githash%`
 - `%branch%` is replaced with the branch name of the repository
 - `%haschanges%` is replaced with the string defined in the ChangeString attribute in the configuration, see below.
+- `%user%` is replaced with the current user name
+- `%machinename%` is replaced with the current machine name
+- `%lasttag%` -is replaced with the last git tag in this branch.
 
-> NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
+> NOTE: if you already have an `AssemblyInformationalVersion` attribute and it doesn't use replacement tokens, it will not be modified at all.
 
 
 ## Configuration
 
-All config options are attributes of Stamp in FodyWeavers.xml
+All config options are attributes of Stamp element in FodyWeavers.xml
 
 
 ### ChangeString
