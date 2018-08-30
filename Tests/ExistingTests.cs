@@ -63,7 +63,7 @@ public class ExistingTests
 
         using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {
-            var nameOfCurrentBranch = repo.Head.Name;
+            var nameOfCurrentBranch = repo.Head.FriendlyName;
             Assert.True(productVersion.StartsWith("1.0.0+" + nameOfCurrentBranch + "."));
         }
     }
@@ -74,7 +74,7 @@ public class ExistingTests
     {
         using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
         {
-            var nameOfCurrentBranch = repo.Head.Name;
+            var nameOfCurrentBranch = repo.Head.FriendlyName;
 
             var customAttributes = (AssemblyInformationalVersionAttribute) assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 .First();

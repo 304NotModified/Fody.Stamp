@@ -20,7 +20,7 @@ public class GitTests
 				repositoryStatus.Removed.IsEmpty() &&
 				repositoryStatus.Staged.IsEmpty();
 			Trace.WriteLine(clean);
-            Trace.WriteLine(repo.Head.Name);
+            Trace.WriteLine(repo.Head.FriendlyName);
             Trace.WriteLine(repo.Head.Tip.Sha);
         }
     }
