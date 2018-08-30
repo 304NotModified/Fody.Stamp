@@ -8,10 +8,10 @@ using NUnit.Framework;
 [TestFixture]
 public class TaskTests
 {
-    Assembly assembly;
+    private Assembly assembly;
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-    string beforeAssemblyPath;
-    string afterAssemblyPath;
+    private string beforeAssemblyPath;
+    private string afterAssemblyPath;
 
     public TaskTests()
     {
