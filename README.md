@@ -2,8 +2,6 @@
 [![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
 
 
-## This project is no longer maintained. Raise an issue to take ownership
-
 
 ![Icon](https://raw.github.com/Fody/Stamp/master/Icons/package_icon.png)
 
