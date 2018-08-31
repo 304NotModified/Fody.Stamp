@@ -17,7 +17,7 @@ public class TaskTests
     {
         beforeAssemblyPath = AssemblyLocation.CreateBeforeAssemblyPath();
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = AssemblyLocation.CreateAfter(beforeAssemblyPath);
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))

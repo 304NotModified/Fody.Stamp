@@ -20,7 +20,7 @@ public class ExistingTests
     {
         beforeAssemblyPath = AssemblyLocation.CreateBeforeAssemblyPath();
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = AssemblyLocation.CreateAfter(beforeAssemblyPath);
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         ModuleWeaver moduleWeaver;

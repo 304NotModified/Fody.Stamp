@@ -23,4 +23,9 @@ public static class AssemblyLocation
 #endif
         return beforeAssemblyPath;
     }
+
+    public static string CreateAfter(string beforeAssemblyPath)
+    {
+        return beforeAssemblyPath.Replace(".dll", $"{System.Guid.NewGuid().ToString()}.dll");
+    }
 }
