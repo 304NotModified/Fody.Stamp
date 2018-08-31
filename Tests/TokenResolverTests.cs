@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
@@ -15,10 +14,9 @@ public class TokenResolverTests
 
     public TokenResolverTests()
     {
-        var beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
-#if (!DEBUG)
-        beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
-#endif
+        var beforeAssemblyPath = AssemblyLocation.CreateBeforeAssemblyPath();
+
+
         moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
 
         resolver = new FormatStringTokenResolver();
