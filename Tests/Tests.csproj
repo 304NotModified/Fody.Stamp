@@ -9,8 +9,9 @@
     <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="FodyHelpers" Version="3.1.7" />
     <PackageReference Include="LibGit2Sharp" Version="0.25.2" />
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="nunit" Version="3.7.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.*" />
     <ProjectReference Include="..\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj" />
     <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj" />
     <ProjectReference Include="..\Fody\Fody.csproj" />
