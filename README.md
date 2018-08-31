@@ -1,6 +1,5 @@
 
 [![NuGet Status](http://img.shields.io/nuget/v/Stamp.Fody.svg?style=flat)](https://www.nuget.org/packages/Stamp.Fody/)
-
 [![Build status](https://ci.appveyor.com/api/projects/status/aiih15lkmhy56dv2/branch/master?svg=true)](https://ci.appveyor.com/project/304NotModified/fody-stamp/branch/master)
 
 ![Icon](https://raw.github.com/304NotModified/Fody.Stamp/master/Icons/package_icon.png)
@@ -17,6 +16,16 @@ https://nuget.org/packages/Stamp.Fody/
 
     PM> Install-Package Stamp.Fody
 
+### Add to FodyWeavers.xml
+
+Add `<Stamp/>` to [FodyWeavers.xml](https://github.com/Fody/Fody#add-fodyweaversxml)
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<Weavers>
+  <Stamp />
+</Weavers>
+```
 
 ## What it does 
 
@@ -56,7 +65,7 @@ The tokens are:
 
 ## Configuration
 
-All config options are attributes of Stamp element in FodyWeavers.xml
+All config options are attributes of `<Stamp />` element in FodyWeavers.xml
 
 
 ### ChangeString
@@ -66,18 +75,18 @@ Define the string used to indicate that the code was built from a non clean repo
 *Default is `HasChanges`*
 
 ```xml
-<Fody ChangeString="New text" />
+<Stamp ChangeString="New text" />
 ```
 
 
 ### UseProjectGit
 
-Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (true) or the SolutionDir (false).
+Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (`true`) or the SolutionDir (`false`).
 
-*Default is `false`*
+*Default is `false` (SolutionDir)*
 
 ```xml
-<Fody UseProjectGit='true' />
+<Stamp UseProjectGit='true' />
 ```
 
 
