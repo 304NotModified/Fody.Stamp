@@ -16,8 +16,8 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="nunit" Version="3.7.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.*" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <ProjectReference Include="..\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj" />
     <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj" />
     <ProjectReference Include="..\Fody\Fody.csproj" />
