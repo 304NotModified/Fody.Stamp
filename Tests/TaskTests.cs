@@ -15,12 +15,9 @@ public class TaskTests
 
     public TaskTests()
     {
-        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
-#if (!DEBUG)
-        beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
-#endif
+        beforeAssemblyPath = AssemblyLocation.CreateBeforeAssemblyPath();
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = AssemblyLocation.CreateAfter(beforeAssemblyPath);
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))

@@ -1,161 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stamp.Fody</RootNamespace>
-    <AssemblyName>Stamp.Fody</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Stamp.Fody</PackageId>
+    <Version>2.0.0</Version>
+    <Authors>Julian Verdurmen</Authors>
+    <Product>Stamp.Fody</Product>
+    <Company>Julian Verdurmen</Company>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="LibGit2Sharp, Version=0.22.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\FodyCecil.2.0.0\lib\net40\Mono.Cecil.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\FodyCecil.2.0.0\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\FodyCecil.2.0.0\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\FodyCecil.2.0.0\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="FodyHelpers" Version="3.1.7" />
+    <PackageReference Include="LibGit2Sharp" Version="0.25.2" />
+  </ItemGroup> 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <PackageReference Include="FodyCecil" Version="2.1.3" />
+    <PackageReference Include="LibGit2Sharp" Version="0.24.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Configuration.cs" />
-    <Compile Include="EnumerableEx.cs" />
-    <Compile Include="FormatStringTokenResolver.cs" />
-    <Compile Include="LibGitEx.cs" />
-    <Compile Include="ModuleWeaver.cs" />
-    <Compile Include="..\CommonAssemblyInfo.cs" />
-    <Compile Include="PeImage\BinaryReaderExtensions.cs" />
-    <Compile Include="PeImage\BinaryWriterExtensions.cs" />
-    <Compile Include="PeImage\DllCharacteristicsType.cs" />
-    <Compile Include="PeImage\Helpers.cs" />
-    <Compile Include="PeImage\IImageOptionalHeader.cs" />
-    <Compile Include="PeImage\IMAGE_DATA_DIRECTORY.cs" />
-    <Compile Include="PeImage\IMAGE_DOS_HEADER.cs" />
-    <Compile Include="PeImage\IMAGE_FILE_CHARACTERISTICS.cs" />
-    <Compile Include="PeImage\IMAGE_FILE_HEADER.cs" />
-    <Compile Include="PeImage\IMAGE_FILE_MACHINE.cs" />
-    <Compile Include="PeImage\IMAGE_NT_HEADERS.cs" />
-    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_32.cs" />
-    <Compile Include="PeImage\IMAGE_OPTIONAL_HEADER_64.cs" />
-    <Compile Include="PeImage\IMAGE_RESOURCE_DATA_ENTRY.cs" />
-    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY.cs" />
-    <Compile Include="PeImage\IMAGE_RESOURCE_DIRECTORY_ENTRY.cs" />
-    <Compile Include="PeImage\IMAGE_SECTION_HEADER.cs" />
-    <Compile Include="PeImage\IMAGE_SECTION_HEADER_CHARACTERISTICS.cs" />
-    <Compile Include="PeImage\MagicType.cs" />
-    <Compile Include="PeImage\PeFormatException.cs" />
-    <Compile Include="PeImage\PeImage.cs" />
-    <Compile Include="PeImage\ResourceDirectory.cs" />
-    <Compile Include="PeImage\RESOURCE_DIRECTORY_TYPE.cs" />
-    <Compile Include="PeImage\SubStream.cs" />
-    <Compile Include="PeImage\SubSystemType.cs" />
-    <Compile Include="VersionResources\BinaryReaderExtensions.cs" />
-    <Compile Include="VersionResources\StringTable.cs" />
-    <Compile Include="VersionResources\VersionDataType.cs" />
-    <Compile Include="VersionResources\VersionHeader.cs" />
-    <Compile Include="VersionResources\VersionInfo.cs" />
-    <Compile Include="VersionResources\VersionResource.cs" />
-    <Compile Include="VersionResources\VersionResourceFormatException.cs" />
-    <Compile Include="VersionResources\VersionResourceReader.cs" />
-    <Compile Include="VersionResources\VersionResourceWriter.cs" />
-    <Compile Include="VersionResources\VFT.cs" />
-    <Compile Include="VersionResources\VFT2.cs" />
-    <Compile Include="VersionResources\VOS.cs" />
-    <Compile Include="VersionResources\VS_FF.cs" />
-    <Compile Include="VersionResources\VS_FIXEDFILEINFO.cs" />
-    <Compile Include="VersionResources\VS_VERSIONINFO.cs" />
-    <Compile Include="WeavingException.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="NugetAssets\install.ps" />
-    <None Include="NugetAssets\Stamp.Fody.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="NugetAssets\uninstall.ps" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="NugetAssets\Fody_ToBeDeleted.txt" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild">
-    <ItemGroup>
-      <FilesToDelete Include="$(SolutionDir)NuGetBuild\**\*.*" />
-    </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
-    <MakeDir Directories="$(SolutionDir)NuGetBuild" />
-    <Exec Command="&quot;$(SolutionDir)Tools\ilmerge.exe&quot; /out:&quot;$(SolutionDir)NuGetBuild\Stamp.Fody.dll&quot; &quot;$(TargetDir)Stamp.Fody.dll&quot; &quot;$(TargetDir)LibGit2Sharp.dll&quot;  /target:library /targetplatform:v4" />
-    <CreateItem Include="$(TargetDir)\NativeBinaries\amd64\*.dll">
-      <Output TaskParameter="Include" ItemName="amd64" />
-    </CreateItem>
-    <Copy SourceFiles="@(amd64)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\amd64" />
-    <CreateItem Include="$(TargetDir)NativeBinaries\x86\*.dll">
-      <Output TaskParameter="Include" ItemName="x86" />
-    </CreateItem>
-    <Copy SourceFiles="@(x86)" DestinationFolder="$(SolutionDir)NuGetBuild\NativeBinaries\x86" />
-    <Copy SourceFiles="$(ProjectDir)NugetAssets\Fody_ToBeDeleted.txt" DestinationFolder="$(SolutionDir)NuGetBuild\Content" />
-    <Copy SourceFiles="$(ProjectDir)NugetAssets\install.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\install.ps1" />
-    <Copy SourceFiles="$(ProjectDir)NugetAssets\uninstall.ps" DestinationFiles="$(SolutionDir)NuGetBuild\Tools\uninstall.ps1" />
-    <Copy SourceFiles="$(ProjectDir)NugetAssets\Stamp.Fody.nuspec" DestinationFolder="$(SolutionDir)NuGetBuild" />
-    <PepitaPackage.CreatePackageTask NuGetBuildDirectory="$(SolutionDir)NuGetBuild" MetadataAssembly="$(TargetDir)Stamp.Fody.dll" />
-  </Target>
-  <Import Project="..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets" Condition="Exists('..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PepitaPackage.1.21.4\build\PepitaPackage.targets'))" />
-    <Error Condition="!Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props'))" />
-  </Target>
 </Project>

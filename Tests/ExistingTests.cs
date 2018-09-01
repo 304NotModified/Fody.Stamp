@@ -18,12 +18,9 @@ public class ExistingTests
 
     public ExistingTests()
     {
-        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\AssemblyToProcessExistingAttribute.dll"));
-#if (!DEBUG)
-        beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
-#endif
+        beforeAssemblyPath = AssemblyLocation.CreateBeforeAssemblyPath();
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+        afterAssemblyPath = AssemblyLocation.CreateAfter(beforeAssemblyPath);
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
         ModuleWeaver moduleWeaver;
