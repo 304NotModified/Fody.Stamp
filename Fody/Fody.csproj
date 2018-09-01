@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Stamp.Fody</PackageId>
+    <Version>2.0.0</Version>
+    <Authors>Julian Verdurmen</Authors>
+    <Product>Stamp.Fody</Product>
+    <Company>Julian Verdurmen</Company>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="FodyHelpers" Version="3.1.7" />

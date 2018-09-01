@@ -10,5 +10,5 @@ build:
 test_script:
 - ps: .\run-tests.ps1
 artifacts:
-- path: NuGetBuild/Stamp.Fody.*.nupkg
+- path: Fody\bin\Release\Stamp.Fody.*.nupkg
   name: nuget
