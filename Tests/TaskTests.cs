@@ -3,9 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NUnit.Framework;
+using Xunit;
 
-[TestFixture]
 public class TaskTests
 {
     private Assembly assembly;
@@ -42,32 +41,32 @@ public class TaskTests
     }
 
 
-    [Test]
+    [Fact]
     public void EnsureAttributeExists()
     {
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly
             .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
             .First();
-        Assert.IsNotNull(customAttributes.InformationalVersion);
-        Assert.IsNotEmpty(customAttributes.InformationalVersion);
+        Assert.NotNull(customAttributes.InformationalVersion);
+        Assert.NotEmpty(customAttributes.InformationalVersion);
         Trace.WriteLine(customAttributes.InformationalVersion);
     }
 
-    [Test]
+    [Fact]
     public void Win32Resource()
     {
         var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
-        Assert.IsNotNull(versionInfo.ProductVersion);
-        Assert.IsNotEmpty(versionInfo.ProductVersion);
-        Assert.IsNotNull(versionInfo.FileVersion);
-        Assert.IsNotEmpty(versionInfo.FileVersion);
+        Assert.NotNull(versionInfo.ProductVersion);
+        Assert.NotEmpty(versionInfo.ProductVersion);
+        Assert.NotNull(versionInfo.FileVersion);
+        Assert.NotEmpty(versionInfo.FileVersion);
         Trace.WriteLine(versionInfo.ProductVersion);
         Trace.WriteLine(versionInfo.FileVersion);
     }
 
 
 #if(DEBUG)
-    [Test]
+    [Fact]
     public void PeVerify()
     {
         Verifier.Verify(beforeAssemblyPath, afterAssemblyPath);

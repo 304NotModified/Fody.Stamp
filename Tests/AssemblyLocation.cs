@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using NUnit.Framework;
+using System.Reflection;
 
 public static class AssemblyLocation
 {
@@ -15,7 +15,7 @@ public static class AssemblyLocation
 
     public static string CreateBeforeAssemblyPath()
     {
-        var beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\"));
+        var beforeAssemblyPath = Path.GetFullPath(Path.Combine(Assembly.GetExecutingAssembly().CodeBase, @"..\..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\"));
 
 #if NETCORE21
         beforeAssemblyPath = Path.Combine(beforeAssemblyPath, @"netcoreapp2.0");
@@ -34,6 +34,6 @@ public static class AssemblyLocation
 
     public static string CreateAfter(string beforeAssemblyPath)
     {
-        return beforeAssemblyPath.Replace(".dll", $"{System.Guid.NewGuid().ToString()}.dll");
+        return beforeAssemblyPath.Replace(".dll", $"{Guid.NewGuid().ToString()}.dll");
     }
 }

@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using LibGit2Sharp;
 using Mono.Cecil;
-using NUnit.Framework;
+using Xunit;
 
-[TestFixture]
 public class ExistingTests
 {
     private Assembly assembly;
@@ -44,44 +43,44 @@ public class ExistingTests
     }
 
 
-    [Test]
+    [Fact]
     public void EnsureAttributeExists()
     {
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
-        Assert.IsNotNull(customAttributes.InformationalVersion);
-        Assert.IsNotEmpty(customAttributes.InformationalVersion);
+        Assert.NotNull(customAttributes.InformationalVersion);
+        Assert.NotEmpty(customAttributes.InformationalVersion);
         Debug.WriteLine(customAttributes.InformationalVersion);
     }
 
-    [Test]
+    [Fact]
     public void Win32Resource()
     {
         var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
 
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+        using (var repo = new Repository(Repository.Discover(Assembly.GetExecutingAssembly().CodeBase)))
         {
             var nameOfCurrentBranch = repo.Head.FriendlyName;
-            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", productVersion);
+            Assert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", productVersion);
         }
     }
 
 
-    [Test]
+    [Fact]
     public void TemplateIsReplaced()
     {
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+        using (var repo = new Repository(Repository.Discover(Assembly.GetExecutingAssembly().CodeBase)))
         {
             var nameOfCurrentBranch = repo.Head.FriendlyName;
 
             var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 .First();
-            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", customAttributes.InformationalVersion);
+            Assert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", customAttributes.InformationalVersion);
         }
     }
 
 
 #if(DEBUG)
-    [Test]
+    [Fact]
     public void PeVerify()
     {
         Verifier.Verify(beforeAssemblyPath, afterAssemblyPath);

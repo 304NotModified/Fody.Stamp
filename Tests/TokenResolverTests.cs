@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Mono.Cecil;
-using NUnit.Framework;
+using Xunit;
 
-[TestFixture]
 public class TokenResolverTests
 {
     private ModuleDefinition moduleDefinition;
@@ -24,68 +24,68 @@ public class TokenResolverTests
 
     private void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+        using (var repo = new Repository(Repository.Discover(Assembly.GetExecutingAssembly().CodeBase)))
         {
             doWithRepo?.Invoke(repo);
         }
     }
 
-    [Test]
+    [Fact]
     public void Replace_version()
     {
         DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version%", moduleDefinition, repo, "");
 
-                Assert.AreEqual("1.0.0.0", result);
+                Assert.Equal("1.0.0.0", result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_version1()
     {
         DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version1%", moduleDefinition, repo, "");
 
-                Assert.AreEqual("1", result);
+                Assert.Equal("1", result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_version2()
     {
         DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version2%", moduleDefinition, repo, "");
 
-                Assert.AreEqual("1.0", result);
+                Assert.Equal("1.0", result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_version3()
     {
         DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version3%", moduleDefinition, repo, "");
 
-                Assert.AreEqual("1.0.0", result);
+                Assert.Equal("1.0.0", result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_version4()
     {
         DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version4%", moduleDefinition, repo, "");
 
-                Assert.AreEqual("1.0.0.0", result);
+                Assert.Equal("1.0.0.0", result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_branch()
     {
         DoWithCurrentRepo(repo =>
@@ -94,11 +94,11 @@ public class TokenResolverTests
 
                 var result = resolver.ReplaceTokens("%branch%", moduleDefinition, repo, "");
 
-                Assert.AreEqual(branchName, result);
+                Assert.Equal(branchName, result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_githash()
     {
         DoWithCurrentRepo(repo =>
@@ -107,11 +107,11 @@ public class TokenResolverTests
 
                 var result = resolver.ReplaceTokens("%githash%", moduleDefinition, repo, "");
 
-                Assert.AreEqual(sha, result);
+                Assert.Equal(sha, result);
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_haschanges()
     {
         DoWithCurrentRepo(repo =>
@@ -120,16 +120,16 @@ public class TokenResolverTests
 
                 if (repo.IsClean())
                 {
-                    Assert.AreEqual(string.Empty, result);
+                    Assert.Equal(string.Empty, result);
                 }
                 else
                 {
-                    Assert.AreEqual("HasChanges", result);
+                    Assert.Equal("HasChanges", result);
                 }
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_user()
     {
         DoWithCurrentRepo(repo =>
@@ -138,11 +138,11 @@ public class TokenResolverTests
 
                 var result = resolver.ReplaceTokens("%user%", moduleDefinition, repo, "");
 
-                Assert.IsTrue(result.EndsWith(currentUser));
+                Assert.True(result.EndsWith(currentUser));
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_machine()
     {
         DoWithCurrentRepo(repo =>
@@ -151,10 +151,10 @@ public class TokenResolverTests
 
                 var result = resolver.ReplaceTokens("%machine%", moduleDefinition, repo, "");
 
-                Assert.AreEqual(machineName, result);
+                Assert.Equal(machineName, result);
             });
     }
-    [Test]
+    [Fact]
     public void Replace_tags()
     {
         DoWithCurrentRepo(repo =>
@@ -163,11 +163,11 @@ public class TokenResolverTests
 
                 // tags in this repose should have the format %.%.%
                 var match = Regex.IsMatch(result, @"^\d+\.\d+\.\d+$");
-                Assert.IsTrue(match, "no match for '{0}'", result);
+                Assert.True(match, $"no match for '{result}'");
             });
     }
 
-    [Test]
+    [Fact]
     public void Replace_time()
     {
         DoWithCurrentRepo(repo =>
@@ -175,12 +175,12 @@ public class TokenResolverTests
             var now = DateTime.Now;
             var utcNow = DateTime.UtcNow;
 
-            Assert.AreEqual(now.ToString("yyMMddmm"), resolver.ReplaceTokens("%now:yyMMddmm%", moduleDefinition, repo, ""));
-            Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
+            Assert.Equal(now.ToString("yyMMddmm"), resolver.ReplaceTokens("%now:yyMMddmm%", moduleDefinition, repo, ""));
+            Assert.Equal(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
         });
     }
 
-    [Test]
+    [Fact]
     public void Replace_environment_variables()
     {
         DoWithCurrentRepo(repo =>
@@ -193,7 +193,7 @@ public class TokenResolverTests
                                                                               .ToArray());
                 var result = resolver.ReplaceTokens(replacementTokens, moduleDefinition, repo, "");
 
-                Assert.AreEqual(expected, result);
+                Assert.Equal(expected, result);
             });
     }
 }
