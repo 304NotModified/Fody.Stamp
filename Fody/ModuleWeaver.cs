@@ -11,8 +11,8 @@ using Fody.VersionResources;
 public class ModuleWeaver
 {
     public XElement Config { get; set; }
-    public Action<string> LogInfo { get; }
-    public Action<string> LogWarning { get; }
+    public Action<string> LogInfo { get; set; }
+    public Action<string> LogWarning { get; set; }
     public ModuleDefinition ModuleDefinition { get; set; }
     public string SolutionDirectoryPath { get; set; }
     public string ProjectDirectoryPath { get; set; }
