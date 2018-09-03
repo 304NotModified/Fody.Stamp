@@ -37,8 +37,8 @@ public class ModuleWeaver
 
     private Configuration _config;
 
-    private const string InfoAttributeName = "AssemblyInformationalVersionAttribute";
-    private const string FileAttributeName = "AssemblyFileVersionAttribute";
+    private const string InfoAttributeName = nameof(System.Reflection.AssemblyInformationalVersionAttribute);
+    private const string FileAttributeName = nameof(System.Reflection.AssemblyFileVersionAttribute);
 
     public ModuleWeaver()
     {
