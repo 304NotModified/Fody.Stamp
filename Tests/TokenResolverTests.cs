@@ -177,7 +177,7 @@ public class TokenResolverTests
             var now = DateTime.Now;
             var utcNow = DateTime.UtcNow;
 
-            Assert.AreEqual(now.ToString("yyMMddmm"), resolver.ReplaceTokens("%now:yyMMddmm%", moduleDefinition, repo, ""));
+            Assert.AreEqual(now.ToString("yyMMdd"), resolver.ReplaceTokens("%now:yyMMdd%", moduleDefinition, repo, ""));
             Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
         });
     }
