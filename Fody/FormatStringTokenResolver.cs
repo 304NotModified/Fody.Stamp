@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
+using Mono.Cecil;
 
 public class FormatStringTokenResolver
 {
@@ -10,6 +11,12 @@ public class FormatStringTokenResolver
 
     private static DateTime now = DateTime.Now;
     private static DateTime utcNow = DateTime.UtcNow;
+
+    [Obsolete("Use ReplaceTokens with Version. Will be removed in 2.0")]
+    public string ReplaceTokens(string template, ModuleDefinition moduleDefinition, Repository repo, string changestring)
+    {
+        return ReplaceTokens(template, moduleDefinition.Assembly.Name.Version, repo, changestring);
+    }
 
     public string ReplaceTokens(string template, System.Version version, Repository repo, string changestring)
     {
