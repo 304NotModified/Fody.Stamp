@@ -10,3 +10,10 @@ build:
 artifacts:
 - path: NuGetBuild/Stamp.Fody.*.nupkg
   name: nuget
+deploy:
+- provider: NuGet
+  api_key:
+    secure: oVrrIFIVUfUpR9RRH/QYKkmR7fOuu0JY29ok9RbbhjWt5o9CS6Q8pNu67701hLuQ
+  artifact: /.*\.nupkg/
+  on:
+    branch: master
