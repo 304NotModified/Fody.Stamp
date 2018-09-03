@@ -226,7 +226,7 @@ public class ModuleWeaver
         }
         catch (Exception ex)
         {
-            throw new WeavingException($"Failed to update the assembly information. {ex.Message}");
+            throw new WeavingException("Failed to update the assembly information. {ex.Message}", ex);
         }
     }
 
