@@ -14,13 +14,14 @@
     <description>Stamps an assembly with git information.</description>
     <language>en-AU</language>
     <releaseNotes>
+      1.4.2: Fix 'The process cannot access the file mydll.dll.tmp because it is being used by another process'
       1.4.1: Fix Expression must be writeable
       1.4: Added %lasttag%
 
     </releaseNotes>
     <tags>Git, Versioning, ILWeaving, Fody, Stamp, Cecil</tags>
     <dependencies>
-      <dependency id="Fody" version="2.0.0"/>
+      <dependency id="Fody" version="2.0.3"/>
     </dependencies>
   </metadata>
 </package>
