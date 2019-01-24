@@ -51,23 +51,31 @@ public class TaskTests
         var customAttributes = (AssemblyInformationalVersionAttribute)assembly
             .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
             .First();
-        Assert.IsNotNull(customAttributes.InformationalVersion);
-        Assert.IsNotEmpty(customAttributes.InformationalVersion);
-        Trace.WriteLine(customAttributes.InformationalVersion);
+
+        AssertVersionWithSha(customAttributes.InformationalVersion);
     }
 
     [Test]
     public void Win32Resource()
     {
         var versionInfo = FileVersionInfo.GetVersionInfo(afterAssemblyPath);
-        Assert.IsNotNull(versionInfo.ProductVersion);
-        Assert.IsNotEmpty(versionInfo.ProductVersion);
+        
+        AssertVersionWithSha(versionInfo.ProductVersion);
+        
         Assert.IsNotNull(versionInfo.FileVersion);
         Assert.IsNotEmpty(versionInfo.FileVersion);
-        Trace.WriteLine(versionInfo.ProductVersion);
-        Trace.WriteLine(versionInfo.FileVersion);
+        Assert.AreEqual("1.0.0.0",versionInfo.FileVersion);
     }
 
+    private static void AssertVersionWithSha(string version)
+    {
+        Assert.IsNotNull(version);
+        Assert.IsNotEmpty(version);
+        StringAssert.Contains("1.0.0.0", version, "Missing number");
+        StringAssert.Contains("Head:", version, message: "Missing Head");
+        StringAssert.Contains("Sha:", version, message: "Missing Sha");
+        Trace.WriteLine(version);
+    }
 
 #if(DEBUG)
     [Test]
