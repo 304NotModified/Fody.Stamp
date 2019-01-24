@@ -10,7 +10,22 @@
         {
         }
 
-        protected override void AssertVersion(string version)
+        protected override void AssertProductionVersion(string version)
+        {
+            AssertVersionWithHeadAndSha(version);
+        }
+
+        protected override void AssertFileVersion(string version)
+        {
+            Assert.AreEqual("1.0.0.0", version);
+        }
+
+        protected override void AssertInformationalVersion(string version)
+        {
+            AssertVersionWithHeadAndSha(version);
+        }
+
+        private static void AssertVersionWithHeadAndSha(string version)
         {
             Assert.IsNotNull(version);
             Assert.IsNotEmpty(version);
