@@ -11,8 +11,8 @@
     <ProjectGuid>{5A86453B-96FB-4B6E-A283-225BB9F753D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tests</RootNamespace>
-    <AssemblyName>Tests</AssemblyName>
+    <RootNamespace>Stamp.Fody.Tests</RootNamespace>
+    <AssemblyName>Stamp.Fody.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -64,18 +64,22 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyLocation.cs" />
-    <Compile Include="ExistingTests.cs" />
-    <Compile Include="GitTests.cs" />
+    <Compile Include="Helpers\AssemblyLocation.cs" />
+    <Compile Include="IntegrationTests\GitTests.cs" />
+    <Compile Include="PatchAssemblyTestsBase.cs" />
+    <Compile Include="PatchExistingAssemblyTests.cs" />
     <Compile Include="TokenResolverTests.cs" />
-    <Compile Include="Verifier.cs" />
-    <Compile Include="TaskTests.cs" />
+    <Compile Include="Helpers\Verifier.cs" />
+    <Compile Include="PatchAssemblyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
@@ -83,14 +87,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj">
-      <Project>{1f67c3cf-6705-4a98-b9a4-c448dca95bc2}</Project>
-      <Name>AssemblyToProcessExistingAttribute</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj">
-      <Project>{7dec4e2d-f872-434e-a267-0bad65299950}</Project>
-      <Name>AssemblyToProcess</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Fody\Fody.csproj">
       <Project>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</Project>
       <Name>Fody</Name>

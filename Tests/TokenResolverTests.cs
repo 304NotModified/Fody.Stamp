@@ -1,97 +1,99 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using LibGit2Sharp;
-using Mono.Cecil;
-using NUnit.Framework;
-using Stamp.Fody.Internal;
-
-[TestFixture]
-public class TokenResolverTests
+namespace Stamp.Fody.Tests
 {
-    private ModuleDefinition moduleDefinition;
-    private FormatStringTokenResolver resolver;
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using LibGit2Sharp;
+    using Mono.Cecil;
+    using NUnit.Framework;
+    using Stamp.Fody.Internal;
 
-
-    public TokenResolverTests()
+    [TestFixture]
+    public class TokenResolverTests
     {
-        var beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
+        private ModuleDefinition moduleDefinition;
+        private FormatStringTokenResolver resolver;
+
+
+        public TokenResolverTests()
+        {
+            var beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
-        moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
+            moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath);
 
-        resolver = new FormatStringTokenResolver();
-    }
-
-    private void DoWithCurrentRepo(Action<Repository> doWithRepo)
-    {
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
-        {
-            doWithRepo?.Invoke(repo);
+            resolver = new FormatStringTokenResolver();
         }
-    }
 
-    [Test]
-    public void Replace_version()
-    {
-        DoWithCurrentRepo(repo =>
+        private void DoWithCurrentRepo(Action<Repository> doWithRepo)
+        {
+            using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+            {
+                doWithRepo?.Invoke(repo);
+            }
+        }
+
+        [Test]
+        public void Replace_version()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version%", moduleDefinition, repo, "");
 
                 Assert.AreEqual("1.0.0.0", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_version1()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_version1()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version1%", moduleDefinition, repo, "");
 
                 Assert.AreEqual("1", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_version2()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_version2()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version2%", moduleDefinition, repo, "");
 
                 Assert.AreEqual("1.0", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_version3()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_version3()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version3%", moduleDefinition, repo, "");
 
                 Assert.AreEqual("1.0.0", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_version4()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_version4()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%version4%", moduleDefinition, repo, "");
 
                 Assert.AreEqual("1.0.0.0", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_branch()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_branch()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var branchName = repo.Head.FriendlyName;
 
@@ -99,12 +101,12 @@ public class TokenResolverTests
 
                 Assert.AreEqual(branchName, result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_githash()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_githash()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var sha = repo.Head.Tip.Sha;
 
@@ -112,12 +114,12 @@ public class TokenResolverTests
 
                 Assert.AreEqual(sha, result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_haschanges()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_haschanges()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%haschanges%", moduleDefinition, repo, "HasChanges");
 
@@ -130,12 +132,12 @@ public class TokenResolverTests
                     Assert.AreEqual("HasChanges", result);
                 }
             });
-    }
+        }
 
-    [Test]
-    public void Replace_user()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_user()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var currentUser = Environment.UserName;
 
@@ -143,12 +145,12 @@ public class TokenResolverTests
 
                 Assert.IsTrue(result.EndsWith(currentUser));
             });
-    }
+        }
 
-    [Test]
-    public void Replace_machine()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_machine()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var machineName = Environment.MachineName;
 
@@ -156,11 +158,11 @@ public class TokenResolverTests
 
                 Assert.AreEqual(machineName, result);
             });
-    }
-    [Test]
-    public void Replace_tags()
-    {
-        DoWithCurrentRepo(repo =>
+        }
+        [Test]
+        public void Replace_tags()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var result = resolver.ReplaceTokens("%lasttag%", moduleDefinition, repo, "");
 
@@ -168,35 +170,36 @@ public class TokenResolverTests
                 var match = Regex.IsMatch(result, @"^\d+\.\d+\.\d+$");
                 Assert.IsTrue(match, "no match for '{0}'", result);
             });
-    }
+        }
 
-    [Test]
-    public void Replace_time()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_time()
         {
-            var now = DateTime.Now;
-            var utcNow = DateTime.UtcNow;
+            DoWithCurrentRepo(repo =>
+            {
+                var now = DateTime.Now;
+                var utcNow = DateTime.UtcNow;
 
-            Assert.AreEqual(now.ToString("yyMMdd"), resolver.ReplaceTokens("%now:yyMMdd%", moduleDefinition, repo, ""));
-            Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
-        });
-    }
+                Assert.AreEqual(now.ToString("yyMMdd"), resolver.ReplaceTokens("%now:yyMMdd%", moduleDefinition, repo, ""));
+                Assert.AreEqual(utcNow.ToShortDateString(), resolver.ReplaceTokens("%utcnow%", moduleDefinition, repo, ""));
+            });
+        }
 
-    [Test]
-    public void Replace_environment_variables()
-    {
-        DoWithCurrentRepo(repo =>
+        [Test]
+        public void Replace_environment_variables()
+        {
+            DoWithCurrentRepo(repo =>
             {
                 var environmentVariables = Environment.GetEnvironmentVariables();
                 var expected = string.Join("--", environmentVariables.Values.Cast<string>());
 
                 var replacementTokens = string.Join("--", environmentVariables.Keys.Cast<string>()
-                                                                              .Select(key => "%env[" + key + "]%")
-                                                                              .ToArray());
+                    .Select(key => "%env[" + key + "]%")
+                    .ToArray());
                 var result = resolver.ReplaceTokens(replacementTokens, moduleDefinition, repo, "");
 
                 Assert.AreEqual(expected, result);
             });
+        }
     }
 }
