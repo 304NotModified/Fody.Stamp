@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
+using Stamp.Fody.Internal;
 
 [TestFixture]
 public class TokenResolverTests

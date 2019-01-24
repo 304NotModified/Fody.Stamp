@@ -10,6 +10,7 @@ using Mono.Cecil;
 using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
+using Stamp.Fody.Internal;
 
 public class ModuleWeaver : BaseModuleWeaver
 {
