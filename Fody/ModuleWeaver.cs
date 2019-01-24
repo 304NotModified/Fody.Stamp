@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -24,6 +23,8 @@ public class ModuleWeaver : BaseModuleWeaver
 
     private const string InfoAttributeName = nameof(System.Reflection.AssemblyInformationalVersionAttribute);
     private const string FileAttributeName = nameof(System.Reflection.AssemblyFileVersionAttribute);
+
+    Version versionToUse;
 
     public ModuleWeaver()
     {
@@ -61,12 +62,14 @@ public class ModuleWeaver : BaseModuleWeaver
                 return;
             }
 
-            var hasInformationVersion = GetCustomAttribute(customAttributes, InfoAttributeName) != null;
+            var customAttribute = GetCustomAttribute(customAttributes, InfoAttributeName);
+            var hasInformationVersion = customAttribute != null;
 
             //only overwrite is there is a information version
+
             if (hasInformationVersion)
             {
-                Version versionToUse;
+             
                 if (config.PatchInformationVersionSource == InformationVersionSource.FileVersion)
                 {
                     versionToUse = GetAssemblyFileVersion(customAttributes);
@@ -84,6 +87,11 @@ public class ModuleWeaver : BaseModuleWeaver
                 {
                     assemblyInfoVersion = FormatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, config.ChangeString);
                 }
+
+
+
+                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
+                customAttributes.Add(customAttribute);
             }
         }
     }
@@ -195,6 +203,10 @@ public class ModuleWeaver : BaseModuleWeaver
                 var reader = new VersionResourceReader(versionStream);
                 var versions = reader.Read();
 
+                var fixedFileInfo = versions.FixedFileInfo.Value;
+                fixedFileInfo.FileVersion = versionToUse;
+                fixedFileInfo.ProductVersion = versionToUse;
+                versions.FixedFileInfo = fixedFileInfo;
 
 
                 if (assemblyInfoVersion != null)
