@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using LibGit2Sharp;
 using NUnit.Framework;
+using Stamp.Fody.Internal;
 
 [TestFixture]
 public class GitTests
@@ -10,7 +11,7 @@ public class GitTests
     [Explicit]
     public void Foo()
     {
-		using (var repo = new Repository(Repository.Discover(Environment.CurrentDirectory)))
+		using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
 		{
 			var repositoryStatus = repo.RetrieveStatus();
 			var clean =

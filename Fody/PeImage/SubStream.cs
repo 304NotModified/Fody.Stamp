@@ -27,7 +27,7 @@ namespace Fody.PeImage
     /// <summary>
     /// Represents parts of a <see cref="Stream"/>, from a start byte offset for a given length.
     /// </summary>
-    public class SubStream : Stream
+    internal class SubStream : Stream
     {
         /// <summary>
         /// The parent stream of this stream.
