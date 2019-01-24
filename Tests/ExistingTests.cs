@@ -6,89 +6,92 @@ using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
 
-[TestFixture]
-public class ExistingTests
+namespace Tests
 {
-    private Assembly assembly;
-
-    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-    private string beforeAssemblyPath;
-
-    private string afterAssemblyPath;
-
-    public ExistingTests()
+    [TestFixture]
+    public class ExistingTests
     {
-        beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\AssemblyToProcessExistingAttribute.dll"));
+        private Assembly assembly;
+
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private string beforeAssemblyPath;
+
+        private string afterAssemblyPath;
+
+        public ExistingTests()
+        {
+            beforeAssemblyPath = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, @"..\..\..\AssemblyToProcessExistingAttribute\bin\Debug\AssemblyToProcessExistingAttribute.dll"));
 #if (!DEBUG)
         beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
 
-        afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
-        File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
+            afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
+            File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
 
-        ModuleWeaver moduleWeaver;
-        using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))
-        {
-            var currentDirectory = AssemblyLocation.CurrentDirectory();
-            moduleWeaver = new ModuleWeaver
+            ModuleWeaver moduleWeaver;
+            using (var moduleDefinition = ModuleDefinition.ReadModule(beforeAssemblyPath))
             {
-                ModuleDefinition = moduleDefinition,
-                AddinDirectoryPath = currentDirectory,
-                SolutionDirectoryPath = currentDirectory,
-                AssemblyFilePath = afterAssemblyPath,
-            };
+                var currentDirectory = AssemblyLocation.CurrentDirectory();
+                moduleWeaver = new ModuleWeaver
+                {
+                    ModuleDefinition = moduleDefinition,
+                    AddinDirectoryPath = currentDirectory,
+                    SolutionDirectoryPath = currentDirectory,
+                    AssemblyFilePath = afterAssemblyPath,
+                };
 
-            moduleWeaver.Execute();
-            moduleDefinition.Write(afterAssemblyPath);
+                moduleWeaver.Execute();
+                moduleDefinition.Write(afterAssemblyPath);
+            }
+            moduleWeaver.AfterWeaving();
+
+            assembly = Assembly.LoadFile(afterAssemblyPath);
         }
-        moduleWeaver.AfterWeaving();
-
-        assembly = Assembly.LoadFile(afterAssemblyPath);
-    }
 
 
-    [Test]
-    public void EnsureAttributeExists()
-    {
-        var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
-        Assert.IsNotNull(customAttributes.InformationalVersion);
-        Assert.IsNotEmpty(customAttributes.InformationalVersion);
-        Debug.WriteLine(customAttributes.InformationalVersion);
-    }
-
-    [Test]
-    public void Win32Resource()
-    {
-        var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
-
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+        [Test]
+        public void EnsureAttributeExists()
         {
-            var nameOfCurrentBranch = repo.Head.FriendlyName;
-            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", productVersion);
+            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).First();
+            Assert.IsNotNull(customAttributes.InformationalVersion);
+            Assert.IsNotEmpty(customAttributes.InformationalVersion);
+            Debug.WriteLine(customAttributes.InformationalVersion);
         }
-    }
 
-
-    [Test]
-    public void TemplateIsReplaced()
-    {
-        using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+        [Test]
+        public void Win32Resource()
         {
-            var nameOfCurrentBranch = repo.Head.FriendlyName;
+            var productVersion = FileVersionInfo.GetVersionInfo(afterAssemblyPath).ProductVersion;
 
-            var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                .First();
-            StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", customAttributes.InformationalVersion);
+            using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+            {
+                var nameOfCurrentBranch = repo.Head.FriendlyName;
+                StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", productVersion);
+            }
         }
-    }
+
+
+        [Test]
+        public void TemplateIsReplaced()
+        {
+            using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
+            {
+                var nameOfCurrentBranch = repo.Head.FriendlyName;
+
+                var customAttributes = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+                    .First();
+                StringAssert.StartsWith("1.0.0+" + nameOfCurrentBranch + ".", customAttributes.InformationalVersion);
+            }
+        }
 
 
 #if(DEBUG)
-    [Test]
-    public void PeVerify()
-    {
-        Verifier.Verify(beforeAssemblyPath, afterAssemblyPath);
-    }
+        [Test]
+        public void PeVerify()
+        {
+            Verifier.Verify(beforeAssemblyPath, afterAssemblyPath);
+        }
 #endif
 
+    }
 }
