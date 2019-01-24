@@ -48,36 +48,40 @@
             _patchedAssembly = Assembly.LoadFile(_patchedAssemblyPath);
         }
 
+        protected abstract void AssertProductionVersion(string version);
+
+        protected abstract void AssertFileVersion(string version);
+
+        protected abstract void AssertInformationalVersion(string version);
+
         [Test]
         public void InformationalVersionSetCorrectly()
         {
             var customAttributes = GetAssemblyInformationalVersionAttribute(_patchedAssembly);
 
             // Assert
-            AssertVersion(customAttributes.InformationalVersion);
+            var version = customAttributes.InformationalVersion;
+            AssertInformationalVersion(version);
         }
-
+        
         [Test]
         public void FileVersionSetCorrectly()
         {
             var versionInfo = FileVersionInfo.GetVersionInfo(_patchedAssemblyPath);
-
-            Assert.IsNotNull(versionInfo.FileVersion);
-            Assert.IsNotEmpty(versionInfo.FileVersion);
-            Assert.AreEqual("1.0.0.0", versionInfo.FileVersion);
+            var version = versionInfo.FileVersion;
+            AssertFileVersion(version);
         }
-
+        
         [Test]
         public void ProductionVersionSetCorrectly()
         {
             var versionInfo = FileVersionInfo.GetVersionInfo(_patchedAssemblyPath);
 
             // Assert
-            AssertVersion(versionInfo.ProductVersion);
+            var version = versionInfo.ProductVersion;
+            AssertProductionVersion(version);
         }
-
-
-
+        
 #if(DEBUG)
         [Test]
         public void PeVerify()
@@ -85,10 +89,6 @@
             Verifier.Verify(_assemblyToPatchPath, _patchedAssemblyPath);
         }
 #endif
-
-
-        protected abstract void AssertVersion(string version);
-
 
         private static string GetAssemblyToPatchPath(string assemblyName)
         {

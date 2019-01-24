@@ -9,7 +9,22 @@
         {
         }
 
-        protected override void AssertVersion(string version)
+        protected override void AssertProductionVersion(string version)
+        {
+            AssertVersionWithBranch(version);
+        }
+
+        protected override void AssertFileVersion(string version)
+        {
+            Assert.AreEqual("1.0.0.0", version);
+        }
+
+        protected override void AssertInformationalVersion(string version)
+        {
+            AssertVersionWithBranch(version);
+        }
+
+        private static void AssertVersionWithBranch(string version)
         {
             using (var repo = new Repository(Repository.Discover(TestContext.CurrentContext.TestDirectory)))
             {
