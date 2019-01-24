@@ -11,16 +11,17 @@ using Mono.Cecil;
 using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
+using Stamp.Fody;
 using Stamp.Fody.Internal;
 
 public class ModuleWeaver : BaseModuleWeaver
 {
     private static bool isPathSet;
     private string assemblyInfoVersion;
-    private Version versionToUse;
+
     private bool dotGitDirExists;
 
-    
+
     private const string InfoAttributeName = nameof(System.Reflection.AssemblyInformationalVersionAttribute);
     private const string FileAttributeName = nameof(System.Reflection.AssemblyFileVersionAttribute);
 
@@ -60,10 +61,7 @@ public class ModuleWeaver : BaseModuleWeaver
                 return;
             }
 
-            if (!config.UseFileVersion)
-                versionToUse = ModuleDefinition.Assembly.Name.Version;
-            else
-                versionToUse = GetAssemblyFileVersion(customAttributes);
+           
 
             var customAttribute = GetCustomAttribute(customAttributes, InfoAttributeName);
             if (customAttribute != null)
@@ -79,12 +77,43 @@ public class ModuleWeaver : BaseModuleWeaver
                 var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
-                assemblyInfoVersion = $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
+
 
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
             }
+
+            if (config.PatchFileVersion)
+            {
+
+            }
+
+            if (config.PatchVersion)
+            {
+
+            }
+
+
+            if (config.PatchInformationVersion)
+            {
+                Version versionToUse;
+                if (config.PatchInformationVersionSource == InformationVersionSource.FileVersion)
+                {
+                    versionToUse = GetAssemblyFileVersion(customAttributes);
+                }
+                else
+                {
+                    versionToUse = ModuleDefinition.Assembly.Name.Version;
+                }
+
+                assemblyInfoVersion = CreateAssemblyInfoVersion(repo, branch, config, versionToUse);
+            }
         }
+    }
+
+    private static string CreateAssemblyInfoVersion(Repository repo, Branch branch, Configuration config, Version versionToUse)
+    {
+        return $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
     }
 
     private static CustomAttribute GetCustomAttribute(ICollection<CustomAttribute> attributes, string attributeName)
@@ -100,7 +129,7 @@ public class ModuleWeaver : BaseModuleWeaver
             throw new WeavingException("AssemblyFileVersion attribute could not be found.");
         }
 
-        var assemblyFileVersionString = (string) afvAttribute.ConstructorArguments[0].Value;
+        var assemblyFileVersionString = (string)afvAttribute.ConstructorArguments[0].Value;
         VerifyStartsWithVersion(assemblyFileVersionString);
         return Version.Parse(assemblyFileVersionString);
     }
