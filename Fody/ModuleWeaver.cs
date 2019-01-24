@@ -1,23 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
+
+using Fody;
+
 using LibGit2Sharp;
 using Mono.Cecil;
 using Version = System.Version;
 using Fody.PeImage;
 using Fody.VersionResources;
 
-public class ModuleWeaver
+public class ModuleWeaver : BaseModuleWeaver
 {
-    public XElement Config { get; set; }
-    public Action<string> LogInfo { get; set; }
-    public Action<string> LogWarning { get; set; }
-    public ModuleDefinition ModuleDefinition { get; set; }
-    public string SolutionDirectoryPath { get; set; }
-    public string ProjectDirectoryPath { get; set; }
-    public string AddinDirectoryPath { get; set; }
-    public string AssemblyFilePath { get; set; }
     private static bool isPathSet;
     private readonly FormatStringTokenResolver formatStringTokenResolver;
     private string assemblyInfoVersion;
@@ -31,14 +26,13 @@ public class ModuleWeaver
         formatStringTokenResolver = new FormatStringTokenResolver();
     }
 
-    public void Execute()
+    public override void Execute()
     {
         SetSearchPath();
 
         var config = new Configuration(Config);
 
         LogInfo("Starting search for git repository in " + (config.UseProject ? "ProjectDir" : "SolutionDir"));
-
 
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
@@ -141,7 +135,16 @@ public class ModuleWeaver
         return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
     }
 
-    public void AfterWeaving()
+    /// <summary>
+    /// Return a list of assembly names for scanning.
+    /// Used as a list for <see cref="P:Fody.BaseModuleWeaver.FindType" />.
+    /// </summary>
+    public override IEnumerable<string> GetAssembliesForScanning()
+    {
+        yield break;
+    }
+
+    public override void AfterWeaving()
     {
         if (!dotGitDirExists)
         {
