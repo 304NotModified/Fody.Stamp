@@ -6,21 +6,14 @@ public class Configuration
 {
     public bool UseProject { get; set; }
 
-    public bool PatchVersion { get; set; }
-    public bool PatchFileVersion { get; set; }
-    public bool PatchInformationVersion { get; set; }
-
     //todo
     public InformationVersionSource PatchInformationVersionSource { get; set; } = InformationVersionSource.Version;
 
-    public string ChangeString { get; set; };
+    public string ChangeString { get; set; }
 
     public Configuration(XElement config)
     {
         UseProject = GetBooleanAttr(config, "UseProject") ?? false;
-        PatchVersion = GetBooleanAttr(config, "PatchVersion") ?? true;
-        PatchFileVersion = GetBooleanAttr(config, "PatchVersion") ?? true;
-        PatchInformationVersion = GetBooleanAttr(config, "PatchInformationVersion") ?? true;
         ChangeString = GetStringAttr(config, "HasChanges");
 
     }

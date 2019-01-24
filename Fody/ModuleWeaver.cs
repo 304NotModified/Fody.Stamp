@@ -61,40 +61,10 @@ public class ModuleWeaver : BaseModuleWeaver
                 return;
             }
 
-           
+            var hasInformationVersion = GetCustomAttribute(customAttributes, InfoAttributeName) != null;
 
-            var customAttribute = GetCustomAttribute(customAttributes, InfoAttributeName);
-            if (customAttribute != null)
-            {
-                assemblyInfoVersion = (string)customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = FormatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, config.ChangeString);
-                VerifyStartsWithVersion(assemblyInfoVersion);
-                customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
-            }
-            else
-            {
-                var versionAttribute = GetVersionAttribute();
-                var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
-                customAttribute = new CustomAttribute(constructor);
-
-
-
-                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
-                customAttributes.Add(customAttribute);
-            }
-
-            if (config.PatchFileVersion)
-            {
-
-            }
-
-            if (config.PatchVersion)
-            {
-
-            }
-
-
-            if (config.PatchInformationVersion)
+            //only overwrite is there is a information version
+            if (hasInformationVersion)
             {
                 Version versionToUse;
                 if (config.PatchInformationVersionSource == InformationVersionSource.FileVersion)
@@ -106,7 +76,14 @@ public class ModuleWeaver : BaseModuleWeaver
                     versionToUse = ModuleDefinition.Assembly.Name.Version;
                 }
 
-                assemblyInfoVersion = CreateAssemblyInfoVersion(repo, branch, config, versionToUse);
+                if (assemblyInfoVersion == null)
+                {
+                    assemblyInfoVersion = CreateAssemblyInfoVersion(repo, branch, config, versionToUse);
+                }
+                else
+                {
+                    assemblyInfoVersion = FormatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, config.ChangeString);
+                }
             }
         }
     }
@@ -218,21 +195,16 @@ public class ModuleWeaver : BaseModuleWeaver
                 var reader = new VersionResourceReader(versionStream);
                 var versions = reader.Read();
 
-                var fixedFileInfo = versions.FixedFileInfo.Value;
-                fixedFileInfo.FileVersion = versionToUse;
-                fixedFileInfo.ProductVersion = versionToUse;
-                versions.FixedFileInfo = fixedFileInfo;
 
-                foreach (var stringTable in versions.StringFileInfo)
+
+                if (assemblyInfoVersion != null)
                 {
-                    if (stringTable.Values.ContainsKey("FileVersion"))
+                    foreach (var stringTable in versions.StringFileInfo)
                     {
-                        stringTable.Values["FileVersion"] = versionToUse.ToString();
-                    }
-
-                    if (stringTable.Values.ContainsKey("ProductVersion"))
-                    {
-                        stringTable.Values["ProductVersion"] = assemblyInfoVersion;
+                        if (stringTable.Values.ContainsKey("ProductVersion"))
+                        {
+                            stringTable.Values["ProductVersion"] = assemblyInfoVersion;
+                        }
                     }
                 }
 
