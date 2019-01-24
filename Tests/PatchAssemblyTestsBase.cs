@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Xml.Linq;
     using Mono.Cecil;
     using NUnit.Framework;
 
@@ -14,9 +15,8 @@
         private readonly string _patchedAssemblyPath;
         private readonly Assembly _patchedAssembly;
         private readonly string _assemblyToPatchPath;
-
         
-        protected PatchAssemblyTestsBase(string assemblyName)
+        protected PatchAssemblyTestsBase(string assemblyName, XElement config = null)
         {
             GetAssemblyToPatchPath(assemblyName);
 
@@ -36,7 +36,8 @@
                     ModuleDefinition = moduleDefinition,
                     AddinDirectoryPath = currentDirectory,
                     SolutionDirectoryPath = currentDirectory,
-                    AssemblyFilePath = _patchedAssemblyPath
+                    AssemblyFilePath = _patchedAssemblyPath,
+                    Config = config
                 };
 
                 weavingTask.Execute();

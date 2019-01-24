@@ -2,11 +2,18 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Xml.Linq;
     using NUnit.Framework;
 
     public class PatchAssemblyTests : PatchAssemblyTestsBase
     {
-        public PatchAssemblyTests() : base("AssemblyToProcess")
+        private const string AssemblyName = "AssemblyToProcess";
+
+        public PatchAssemblyTests() : base(AssemblyName)
+        {
+        }
+
+        protected PatchAssemblyTests(XElement config) : base(AssemblyName, config)
         {
         }
 

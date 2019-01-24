@@ -34,7 +34,7 @@ Extracts the git information from disk, combines it with the assembly version, a
 So if your assembly version is `1.0.0.0`, the working branch is `master` and the last commit is `759e9ddb53271dfa9335a3b27e452749a9b22280` then the following attribute will be added to the assembly.
 
 ```c#
-[assembly: AssemblyInformationalVersion("1.0.0.0 Head:'master' Sha:759e9ddb53271dfa9335a3b27e452749a9b22280")]
+    [assembly: AssemblyInformationalVersion("1.0.0.0 Head:'master' Sha:759e9ddb53271dfa9335a3b27e452749a9b22280")]
 ```
 
 
@@ -50,6 +50,8 @@ The tokens are:
 - `%version2%` is replaced with the major and minor version (`1.0`)
 - `%version3%` is replaced with the major, minor, and revision version (`1.0.0`)
 - `%version4%` is replaced with the major, minor, revision, and build version (`1.0.0.0`)
+- `%now%` is replaced with the current short date
+- `%utcnow%` is replaced with the current utc short date
 - `%now%` is replaced with the current short date
 - `%utcnow%` is replaced with the current utc short date
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
@@ -78,7 +80,6 @@ Define the string used to indicate that the code was built from a non clean repo
 <Stamp ChangeString="New text" />
 ```
 
-
 ### UseProjectGit
 
 Define if you want to start Stamp to start searching for the Git repository in the ProjectDir (`true`) or the SolutionDir (`false`).
@@ -89,6 +90,28 @@ Define if you want to start Stamp to start searching for the Git repository in t
 <Stamp UseProjectGit='true' />
 ```
 
+### OverwriteFileVersion
+
+(new in 2.0)
+
+By default, Stamp will overwrite the `AssemblyFileVersion` with the `AssemblyVersion`. Setting this to `false` will preserve the existing `AssemblyFileVersion`.
+
+*Default is `true`*
+
+```xml
+<Stamp OverwriteFileVersion='false' />
+```
+
+### UseFileVersion
+
+(new in 2.0)
+
+By default, Stamp uses the value from `AssemblyVersion` to construct the `AssemblyInformationalVersion`. Set this to `true` to use the `AssemblyFileVersion` instead. **Note:** If this is set to `true`, `OverwriteFileVersion` will be `false` and will ignore any value explicitly set.
+
+*Default is `false`*
+```xml
+<Stamp UseFileVersion='true' />
+```
 
 ## Icon
 

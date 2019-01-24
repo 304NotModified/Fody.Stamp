@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -15,16 +16,18 @@ using Stamp.Fody.Internal;
 public class ModuleWeaver : BaseModuleWeaver
 {
     private static bool isPathSet;
-    private readonly FormatStringTokenResolver formatStringTokenResolver;
     private string assemblyInfoVersion;
-    private Version assemblyVersion;
+    private Version versionToUse;
     private bool dotGitDirExists;
+
+    
+    private const string InfoAttributeName = nameof(System.Reflection.AssemblyInformationalVersionAttribute);
+    private const string FileAttributeName = nameof(System.Reflection.AssemblyFileVersionAttribute);
 
     public ModuleWeaver()
     {
         LogInfo = s => { };
         LogWarning = s => { };
-        formatStringTokenResolver = new FormatStringTokenResolver();
     }
 
     public override void Execute()
@@ -57,13 +60,16 @@ public class ModuleWeaver : BaseModuleWeaver
                 return;
             }
 
-            assemblyVersion = ModuleDefinition.Assembly.Name.Version;
+            if (!config.UseFileVersion)
+                versionToUse = ModuleDefinition.Assembly.Name.Version;
+            else
+                versionToUse = GetAssemblyFileVersion(customAttributes);
 
-            var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
+            var customAttribute = GetCustomAttribute(customAttributes, InfoAttributeName);
             if (customAttribute != null)
             {
                 assemblyInfoVersion = (string)customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo, config.ChangeString);
+                assemblyInfoVersion = FormatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, versionToUse, repo, config.ChangeString);
                 VerifyStartsWithVersion(assemblyInfoVersion);
                 customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
             }
@@ -73,12 +79,30 @@ public class ModuleWeaver : BaseModuleWeaver
                 var constructor = ModuleDefinition.ImportReference(versionAttribute.Methods.First(x => x.IsConstructor));
                 customAttribute = new CustomAttribute(constructor);
 
-                assemblyInfoVersion = $"{assemblyVersion} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
+                assemblyInfoVersion = $"{versionToUse} Head:'{repo.Head.FriendlyName}' Sha:{branch.Tip.Sha}{(repo.IsClean() ? "" : " " + config.ChangeString)}";
 
                 customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
                 customAttributes.Add(customAttribute);
             }
         }
+    }
+
+    private static CustomAttribute GetCustomAttribute(ICollection<CustomAttribute> attributes, string attributeName)
+    {
+        return attributes.FirstOrDefault(x => x.AttributeType.Name == attributeName);
+    }
+
+    private Version GetAssemblyFileVersion(ICollection<CustomAttribute> customAttributes)
+    {
+        var afvAttribute = GetCustomAttribute(customAttributes, FileAttributeName);
+        if (afvAttribute == null)
+        {
+            throw new WeavingException("AssemblyFileVersion attribute could not be found.");
+        }
+
+        var assemblyFileVersionString = (string) afvAttribute.ConstructorArguments[0].Value;
+        VerifyStartsWithVersion(assemblyFileVersionString);
+        return Version.Parse(assemblyFileVersionString);
     }
 
     private void VerifyStartsWithVersion(string versionString)
@@ -166,15 +190,15 @@ public class ModuleWeaver : BaseModuleWeaver
                 var versions = reader.Read();
 
                 var fixedFileInfo = versions.FixedFileInfo.Value;
-                fixedFileInfo.FileVersion = assemblyVersion;
-                fixedFileInfo.ProductVersion = assemblyVersion;
+                fixedFileInfo.FileVersion = versionToUse;
+                fixedFileInfo.ProductVersion = versionToUse;
                 versions.FixedFileInfo = fixedFileInfo;
 
                 foreach (var stringTable in versions.StringFileInfo)
                 {
                     if (stringTable.Values.ContainsKey("FileVersion"))
                     {
-                        stringTable.Values["FileVersion"] = assemblyVersion.ToString();
+                        stringTable.Values["FileVersion"] = versionToUse.ToString();
                     }
 
                     if (stringTable.Values.ContainsKey("ProductVersion"))
