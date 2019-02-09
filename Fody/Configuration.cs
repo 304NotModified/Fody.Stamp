@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class Configuration
 {
-    public bool UseProject;
-    public string ChangeString = "HasChanges";
+    public bool UseProject { get; set; }
+    public string ChangeString { get; set; } = "HasChanges";
 
     public Configuration(XElement config)
     {
@@ -13,23 +15,46 @@ public class Configuration
             return;
         }
 
-        var attr = config.Attribute("UseProjectGit");
-        if (attr != null)
+        UseProject = GetBooleanAttr(config, "UseProject") ?? UseProject;
+        ChangeString = GetStringAttr(config, "HasChanges") ?? ChangeString;
+    }
+
+    /// <summary>
+    /// Get value from attribute as boolean
+    /// </summary>
+    /// <returns>null = not set</returns>
+    private static bool? GetBooleanAttr(XElement config, string name)
+    {
+        var attr = config?.Attribute(name);
+        if (string.IsNullOrWhiteSpace(attr?.Value))
         {
-            try
-            {
-                UseProject = Convert.ToBoolean(attr.Value);
-            }
-            catch (Exception)
-            {
-                throw new WeavingException($"Unable to parse '{attr.Value}' as a boolean, please use true or false.");
-            }
+            return null;
         }
 
-        attr = config.Attribute("ChangeString");
-        if (!string.IsNullOrWhiteSpace(attr?.Value))
+        try
         {
-            ChangeString = attr.Value;
+            var result = Convert.ToBoolean(attr.Value);
+            return result;
         }
+        catch
+        {
+            throw new WeavingException($"Unable to parse '{attr.Value}' as a boolean; please use 'true' or 'false'.");
+        }
+    }
+
+    /// <summary>
+    /// Get value from attribute as string
+    /// </summary>
+    /// <returns>null = not set</returns>
+    private static string GetStringAttr(XElement config, string name)
+    {
+        var attr = config?.Attribute(name);
+        if (string.IsNullOrWhiteSpace(attr?.Value))
+        {
+            return null;
+        }
+
+        return attr.Value;
+
     }
 }
